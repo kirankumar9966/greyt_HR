@@ -32,6 +32,8 @@ import '../modules/holidayCalender/bindings/holiday_calender_binding.dart';
 import '../modules/holidayCalender/views/holiday_calender_view.dart';
 import '../modules/leaveBalance/bindings/leave_balance_binding.dart';
 import '../modules/leaveBalance/views/leave_balance_view.dart';
+import '../modules/login/bindings/login_binding.dart';
+import '../modules/login/views/login_view.dart';
 import '../modules/newPinSetup/bindings/new_pin_setup_binding.dart';
 import '../modules/newPinSetup/views/new_pin_setup_view.dart';
 import '../modules/payslipDetails/bindings/payslip_details_binding.dart';
@@ -54,7 +56,7 @@ part 'app_routes.dart';
 class AppPages {
   AppPages._();
 
-  static const INITIAL = Routes.DASHBOARD;
+  static const INITIAL = Routes.LOGIN;
 
   static final routes = [
     GetPage(
@@ -69,7 +71,7 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.PROFILE,
-      page: () => const ProfileView(),
+      page: () =>  ProfileView(),
       binding: ProfileBinding(),
     ),
     GetPage(
@@ -176,6 +178,12 @@ class AppPages {
       name: _Paths.PAYSLIP_DETAILS,
       page: () => const PayslipDetailsView(),
       binding: PayslipDetailsBinding(),
+    ),
+
+    GetPage(
+      name: _Paths.LOGIN,
+      page: () =>  LoginView(),
+      binding: LoginBinding(),
     ),
   ];
 }

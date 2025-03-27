@@ -27,6 +27,7 @@ abstract class Routes {
   static const DAY_DETAILS = _Paths.DAY_DETAILS;
   static const PAYSLIPS = _Paths.PAYSLIPS;
   static const PAYSLIP_DETAILS = _Paths.PAYSLIP_DETAILS;
+  static const LOGIN = _Paths.LOGIN;
 }
 
 abstract class _Paths {
@@ -55,4 +56,6 @@ abstract class _Paths {
   static const DAY_DETAILS = '/day-details';
   static const PAYSLIPS = '/payslips';
   static const PAYSLIP_DETAILS = '/payslip-details';
+  static const LOGIN = '/login';
+
 }

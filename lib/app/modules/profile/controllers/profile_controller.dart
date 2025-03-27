@@ -1,42 +1,31 @@
 import 'package:get/get.dart';
+import 'package:greyt_hr/app/services/auth_service.dart';
+import '../models/ProfileModel.dart';
 
 class ProfileController extends GetxController {
-  //TODO: Implement ProfileController
+  var isLoading = true.obs;
+  var employee = Rxn<Employee>();
 
-  var extensionNo = "-".obs;
-  var location = "Hyderabad".obs;
-  var joiningDate = "02 Jan, 2023".obs;
-  var dateOfBirth = "03 Mar".obs;
-  var employeeName = "Obula Kiran Kumar".obs;
-  var employeeID = "XSS-0474".obs;
-
-  // Simulating a fetch method
-  void fetchProfileData() {
-    // Fetch or update the data from API or database
-    extensionNo.value = "9381694712";
-    location.value = "Hyderabad";
-    joiningDate.value = "02 Jan, 2023";
-    dateOfBirth.value = "12 Apr";
-    employeeName.value = "Obula Kiran Kumar";
-    employeeID.value = "XSS-0474";
-  }
-
-  final count = 0.obs;
   @override
   void onInit() {
     super.onInit();
-    fetchProfileData();
+    fetchProfile();
   }
 
-  @override
-  void onReady() {
-    super.onReady();
+  Future<void> fetchProfile() async {
+    try {
+      isLoading.value = true;
+      final profileModel = await AuthService.fetchEmployeeDetails();
+      if (profileModel != null && profileModel.data.employee.empId.isNotEmpty) {
+        employee.value = profileModel.data.employee;
+        print("✅ Profile loaded: ${employee.value?.empId}");
+      } else {
+        Get.snackbar("Error", "Failed to load profile data.");
+      }
+    } catch (e) {
+      Get.snackbar("Error", "Something went wrong: $e");
+    } finally {
+      isLoading.value = false;
+    }
   }
-
-  @override
-  void onClose() {
-    super.onClose();
-  }
-
-  void increment() => count.value++;
 }

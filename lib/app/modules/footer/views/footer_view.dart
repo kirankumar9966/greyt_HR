@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:greyt_hr/app/modules/action/views/action_view.dart';
 import 'package:greyt_hr/app/modules/dashboard/views/dashboard_view.dart';
+import 'package:greyt_hr/app/modules/engage/views/engage_view.dart';
 import 'package:greyt_hr/app/modules/explore/views/explore_view.dart';
 import 'package:greyt_hr/app/modules/privacyAndSecurity/views/privacy_and_security_view.dart';
 import 'package:greyt_hr/app/modules/settings/views/settings_view.dart';
@@ -27,7 +28,7 @@ class FooterView extends GetView<FooterController> {
             Get.to(() => ExploreView()); // Push to history view
             break;
           case 3:
-            Get.to(() => SettingsView()); // Push to history view
+            Get.to(() => EngageView()); // Push to history view
             break;
         }
       },
