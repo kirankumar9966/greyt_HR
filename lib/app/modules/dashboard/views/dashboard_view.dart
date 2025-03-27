@@ -250,7 +250,7 @@ class DashboardView extends GetView<DashboardController> {
                       Align(
                         alignment: Alignment.topCenter,
                         child: Container(
-                          height: 120, // Image height
+                          height: 100, // Image height
                           decoration: BoxDecoration(
                             image: DecorationImage(
                               image: AssetImage(_getImageBasedOnTime()), // Conditionally set the image
@@ -903,30 +903,37 @@ class DashboardView extends GetView<DashboardController> {
                         runSpacing: 16,
                         children: [
                           // Card 1
-                          Obx(() {
-                            if (controller.isHolidayLoading.value) {
-                              return CircularProgressIndicator(); // or shimmer
-                            }
-
-                            return Wrap(
-                              spacing: 16,
-                              runSpacing: 16,
-                              children: controller.upcomingHolidays.map((holiday) {
-                                final date = DateTime.parse(holiday.date);
-                                final formattedDate = "${date.day.toString().padLeft(2, '0')} "
-                                    "${DateFormat('MMM').format(date)}";
-
-                                return _modernHolidayCard(
-                                  icon: Icons.celebration,
-                                  date: formattedDate,
-                                  holiday: holiday.festival,
-                                  day: holiday.day,
-                                  gradient: [Colors.lightBlueAccent, Colors.grey],
-                                );
-                              }).toList(),
-                            );
-                          })
-
+                          _modernHolidayCard(
+                            icon: Icons.celebration,
+                            date: "14 Mar",
+                            holiday: "Holi",
+                            day: "Friday",
+                            gradient: [Colors.lightBlueAccent, Colors.grey],
+                          ),
+                          // Card 2
+                          _modernHolidayCard(
+                            icon: Icons.nature_people,
+                            date: "01 May",
+                            holiday: "Labour Day",
+                            day: "Monday",
+                            gradient: [Colors.lightBlueAccent, Colors.grey],
+                          ),
+                          // Card 3
+                          _modernHolidayCard(
+                            icon: Icons.flag,
+                            date: "15 Aug",
+                            holiday: "Independence Day",
+                            day: "Tuesday",
+                            gradient: [Colors.lightBlueAccent, Colors.grey],
+                          ),
+                          // Card 4
+                          _modernHolidayCard(
+                            icon: Icons.directions_boat,
+                            date: "25 Dec",
+                            holiday: "Christmas",
+                            day: "Monday",
+                            gradient: [Colors.lightBlueAccent, Colors.grey],
+                          ),
                         ],
                       ),
                     ],
