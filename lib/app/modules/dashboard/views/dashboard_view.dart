@@ -7,6 +7,8 @@ import 'package:greyt_hr/app/modules/holidayCalender/views/holiday_calender_view
 import 'package:greyt_hr/app/modules/profile/views/profile_view.dart';
 import 'package:greyt_hr/app/modules/settings/views/settings_view.dart';
 import 'package:greyt_hr/app/modules/updates/views/updates_view.dart';
+import 'package:intl/intl.dart';
+import '../../login/controllers/login_controller.dart';
 import '../controllers/dashboard_controller.dart';
 
 class DashboardView extends GetView<DashboardController> {
@@ -52,6 +54,7 @@ class DashboardView extends GetView<DashboardController> {
               const SizedBox(height: 16),
 
               // Profile Picture and Name Section
+
               Row(
                 children: [
                   CircleAvatar(
@@ -136,20 +139,45 @@ class DashboardView extends GetView<DashboardController> {
 
               ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-                tileColor: Colors.red.shade50, // Subtle red background for highlighting
+                tileColor: Colors.red.shade50,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0), // Rounded corners
+                  borderRadius: BorderRadius.circular(8.0),
                 ),
-                leading: const Icon(Icons.logout, color: Colors.red, size: 28), // Highlighted icon
+                leading: const Icon(Icons.logout, color: Colors.red, size: 28),
                 title: const Text(
                   'Logout',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red), // Bold red text
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
                 ),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.red), // Matching red arrow
-                onTap: () {
-                  // Perform Logout logic
-                },
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.red),
+                  onTap: () async {
+                    final confirmed = await Get.dialog<bool>(
+                      AlertDialog(
+                        title: const Text("Confirm Logout"),
+                        content: const Text("Are you sure you want to log out?"),
+                        actions: [
+                          TextButton(onPressed: () => Get.back(result: false), child: const Text("Cancel")),
+                          ElevatedButton(
+                            onPressed: () async {
+                              // Close the dialog first
+                              Get.back();
+
+                              // Then logout (after dialog is dismissed)
+                              await Get.find<LoginController>().logout();
+                            },
+                            child: const Text("Logout"),
+                          ),
+
+                        ],
+                      ),
+                    );
+
+                    if (confirmed == true) {
+                      await Get.find<LoginController>().logout();
+                    }
+                  }
+
               ),
+
               // Spacer and Footer
               const Spacer(),
               const Divider(thickness: 1),
@@ -222,7 +250,7 @@ class DashboardView extends GetView<DashboardController> {
                       Align(
                         alignment: Alignment.topCenter,
                         child: Container(
-                          height: 100, // Image height
+                          height: 120, // Image height
                           decoration: BoxDecoration(
                             image: DecorationImage(
                               image: AssetImage(_getImageBasedOnTime()), // Conditionally set the image
@@ -235,132 +263,147 @@ class DashboardView extends GetView<DashboardController> {
                           ),
                         ),
                       ),
-
+                      const SizedBox(height: 40),
                       // Blurred container at the bottom
                       Align(
                         alignment: Alignment.bottomCenter,
-                        child: Container(
-                          height: 190, // Height of the entire blurred section
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: Colors.black.withOpacity(0.2), // Border with light opacity
-                              width: 1,
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Container(
+                            width: Get.width,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: Colors.black.withOpacity(0.2),
+                                width: 1,
+                              ),
+                              color: Colors.transparent,
                             ),
-                            color: Colors.transparent,
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
-                            child: BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                color: Colors.white.withOpacity(0.2), // Semi-transparent blur background
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                                  children: [
-                                    // Row for the circle and text
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [
-                                        // Circle with current time
-                                        Container(
-                                          height: 110, // Larger circle size
-                                          width: 110,
-                                          decoration: BoxDecoration(
-                                            gradient: LinearGradient(
-                                              colors: [Colors.grey, Colors.blueGrey],
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                            ),
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: Colors.black.withOpacity(0.5), // Light border
-                                              width: 1,
-                                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: BackdropFilter(
+                                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                                child: Container(
+                                  padding: const EdgeInsets.all(16),
+                                  color: Colors.white.withOpacity(0.2),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      // Circle Clock
+                                      Container(
+                                        height: 90,
+                                        width: 90,
+                                        decoration: BoxDecoration(
+                                          gradient: const LinearGradient(
+                                            colors: [Colors.grey, Colors.blueGrey],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
                                           ),
-                                          child: Center(
-                                            child: Obx(
-                                                  () => Text(
-                                                controller.currentTime.value,
-                                                textAlign: TextAlign.center,
-                                                maxLines: 1, // Ensures the text stays on a single line
-                                                overflow: TextOverflow.ellipsis, // Handles any overflow gracefully
-                                                style: const TextStyle(
-                                                  fontSize: 17, // Reduced font size
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.white
-                                                ),
-                                              ),
-                                            ),
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: Colors.black.withOpacity(0.5),
+                                            width: 1,
                                           ),
                                         ),
-                                        // Current day, shift, and date
-                                        Column(
+                                        child: Center(
+                                          child: Obx(() => Text(
+                                            controller.currentTime.value,
+                                            textAlign: TextAlign.center,
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.white,
+                                            ),
+                                          )),
+                                        ),
+                                      ),
+
+                                      const SizedBox(width: 16),
+
+                                      // Info + Button
+                                      Expanded(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min, // 👈 Prevents overflow
                                           crossAxisAlignment: CrossAxisAlignment.end,
                                           children: [
-                                            const Text(
-                                              'Monday | 10:00 AM To \n 07:00 PM Shift',
-                                              style: TextStyle(
-                                                fontSize: 17,
-                                                color: Colors.black,
+                                            Text(
+                                              "${DateFormat('EEEE').format(DateTime.now())} | 10:00 AM - 07:00 PM",
+                                              style: const TextStyle(
+                                                fontSize: 15,
                                                 fontWeight: FontWeight.w500,
                                               ),
                                             ),
-                                            const SizedBox(height: 4),
+                                            const SizedBox(height: 6),
                                             Obx(() => Text(
                                               controller.currentDate.value,
                                               style: const TextStyle(
-                                                  fontSize: 14,
-                                                  color: Colors.purple,
-                                                  fontWeight: FontWeight.w600),
+                                                fontSize: 13,
+                                                color: Colors.purple,
+                                                fontWeight: FontWeight.w600,
+                                              ),
                                             )),
-                                            const SizedBox(height: 18),
-                                            ElevatedButton(
-                                              onPressed: () {
-                                                // Handle sign-out logic
+                                            const SizedBox(height: 4),
+                                            Obx(() {
+                                              final swipeTime = controller.swipeTime.value;
+                                              final isSignedIn = controller.isSignedIn.value;
+
+                                              return Text(
+                                                swipeTime.isNotEmpty
+                                                    ? "Last Swipe: $swipeTime (${isSignedIn ? "IN" : "OUT"})"
+                                                    : "",
+                                                style: const TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.grey,
+                                                  fontStyle: FontStyle.italic,
+                                                ),
+                                              );
+                                            }),
+                                            const SizedBox(height: 10),
+                                            Obx(() => ElevatedButton(
+                                              onPressed: () async {
+                                                await controller.performSwipe();
                                               },
                                               style: ElevatedButton.styleFrom(
-                                                backgroundColor: Color(0xFF607D8B),
+                                                backgroundColor: controller.isSignedIn.value
+                                                    ? Colors.blue
+                                                    : const Color(0xFF607D8B),
                                                 shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(20), // Rounded button
+                                                  borderRadius: BorderRadius.circular(20),
                                                 ),
                                                 padding: const EdgeInsets.symmetric(
-                                                  horizontal: 15,
-                                                  vertical: 8,
-                                                ), // Padding for button
+                                                    horizontal: 20, vertical: 10),
                                               ),
-                                              child: const Text(
-                                                'Sign Out',
-                                                style: TextStyle(
-                                                  fontSize: 16,
+                                              child: Text(
+                                                controller.isSignedIn.value
+                                                    ? 'Sign Out'
+                                                    : 'Sign In',
+                                                style: const TextStyle(
+                                                  fontSize: 15,
                                                   color: Colors.white,
                                                 ),
                                               ),
-                                            ),
+                                            )),
                                           ],
                                         ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 16),
-                                    // Sign Out button
-                                  ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
                       ),
+
                     ],
                   ),
                 ),
 
-                const SizedBox(height: 30,),
+                const SizedBox(height: 10,),
 
                 Align(
                   alignment: Alignment.bottomCenter,
+
                   child: Container(
                     height: 320, // Adjusted height to accommodate all content
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -860,37 +903,30 @@ class DashboardView extends GetView<DashboardController> {
                         runSpacing: 16,
                         children: [
                           // Card 1
-                          _modernHolidayCard(
-                            icon: Icons.celebration,
-                            date: "14 Mar",
-                            holiday: "Holi",
-                            day: "Friday",
-                            gradient: [Colors.lightBlueAccent, Colors.grey],
-                          ),
-                          // Card 2
-                          _modernHolidayCard(
-                            icon: Icons.nature_people,
-                            date: "01 May",
-                            holiday: "Labour Day",
-                            day: "Monday",
-                            gradient: [Colors.lightBlueAccent, Colors.grey],
-                          ),
-                          // Card 3
-                          _modernHolidayCard(
-                            icon: Icons.flag,
-                            date: "15 Aug",
-                            holiday: "Independence Day",
-                            day: "Tuesday",
-                            gradient: [Colors.lightBlueAccent, Colors.grey],
-                          ),
-                          // Card 4
-                          _modernHolidayCard(
-                            icon: Icons.directions_boat,
-                            date: "25 Dec",
-                            holiday: "Christmas",
-                            day: "Monday",
-                            gradient: [Colors.lightBlueAccent, Colors.grey],
-                          ),
+                          Obx(() {
+                            if (controller.isHolidayLoading.value) {
+                              return CircularProgressIndicator(); // or shimmer
+                            }
+
+                            return Wrap(
+                              spacing: 16,
+                              runSpacing: 16,
+                              children: controller.upcomingHolidays.map((holiday) {
+                                final date = DateTime.parse(holiday.date);
+                                final formattedDate = "${date.day.toString().padLeft(2, '0')} "
+                                    "${DateFormat('MMM').format(date)}";
+
+                                return _modernHolidayCard(
+                                  icon: Icons.celebration,
+                                  date: formattedDate,
+                                  holiday: holiday.festival,
+                                  day: holiday.day,
+                                  gradient: [Colors.lightBlueAccent, Colors.grey],
+                                );
+                              }).toList(),
+                            );
+                          })
+
                         ],
                       ),
                     ],
