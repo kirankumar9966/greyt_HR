@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:greyt_hr/app/modules/attendanceInfo/views/attendance_info_view.dart';
 import 'package:greyt_hr/app/modules/footer/views/footer_view.dart';
+import 'package:greyt_hr/app/modules/leaveBalance/views/leave_balance_view.dart';
 import 'package:greyt_hr/app/modules/payslips/views/payslips_view.dart';
 import 'package:greyt_hr/app/modules/settings/views/settings_view.dart';
 
@@ -55,7 +56,7 @@ class ActionView extends GetView<ActionController> {
                 Icons.balance,
                 Colors.green,
                 "Leave Balance",
-                SettingsView(), // Navigation to LeaveBalanceView
+                LeaveBalanceView(), // Navigation to LeaveBalanceView
               ),
               _buildActionItem(
                 Icons.calendar_month,
