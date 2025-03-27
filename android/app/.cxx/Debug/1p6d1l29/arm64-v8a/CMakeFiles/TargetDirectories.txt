@@ -1,0 +1,2 @@
+C:/Users/ArchanaA/AndroidStudioProjects/greyt_HR/android/app/.cxx/Debug/1p6d1l29/arm64-v8a/CMakeFiles/edit_cache.dir
+C:/Users/ArchanaA/AndroidStudioProjects/greyt_HR/android/app/.cxx/Debug/1p6d1l29/arm64-v8a/CMakeFiles/rebuild_cache.dir

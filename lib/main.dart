@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:greyt_hr/app/modules/aboutThisApp/controllers/about_this_app_controller.dart';
 import 'package:greyt_hr/app/modules/action/controllers/action_controller.dart';
 import 'package:greyt_hr/app/modules/applyLeave/controllers/apply_leave_controller.dart';
@@ -27,11 +28,13 @@ import 'package:greyt_hr/app/modules/resign/controllers/resign_controller.dart';
 import 'package:greyt_hr/app/modules/settings/controllers/settings_controller.dart';
 import 'package:greyt_hr/app/modules/updates/controllers/updates_controller.dart';
 
+import 'app/modules/login/controllers/login_controller.dart';
 import 'app/routes/app_pages.dart';
 
 
-void main() {
-
+void main() async {
+  await GetStorage.init();
+  Get.put(LoginController());
   Get.put(DashboardController());
   Get.put(HeaderController());
   Get.put(ProfileController());

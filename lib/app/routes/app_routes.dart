@@ -28,6 +28,7 @@ abstract class Routes {
   static const PAYSLIPS = _Paths.PAYSLIPS;
   static const PAYSLIP_DETAILS = _Paths.PAYSLIP_DETAILS;
   static const CASUAL_LEAVE = _Paths.CASUAL_LEAVE;
+  static const LOGIN = _Paths.LOGIN;
 }
 
 abstract class _Paths {
@@ -57,4 +58,6 @@ abstract class _Paths {
   static const PAYSLIPS = '/payslips';
   static const PAYSLIP_DETAILS = '/payslip-details';
   static const CASUAL_LEAVE = '/casual-leave';
+  static const LOGIN = '/login';
+
 }
