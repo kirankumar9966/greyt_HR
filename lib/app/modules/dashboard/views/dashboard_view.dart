@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -238,7 +237,9 @@ class DashboardView extends GetView<DashboardController> {
                     if (confirmed == true) {
                       await Get.find<LoginController>().logout();
                     }
-                  }),
+                  }
+
+              ),
 
               // Spacer and Footer
               const Spacer(),
@@ -691,26 +692,25 @@ class DashboardView extends GetView<DashboardController> {
                         ),
                         const SizedBox(height: 16),
 
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
-                              'Jan 2025',
-                              style: TextStyle(
+                        Obx(()=>
+                           Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text( controller.monthOfSalary.value, style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            )
-                          ],
+                                fontWeight:FontWeight.w400,
+
+                              ),)
+                            ],
+                          ),
                         ),
                         const SizedBox(height: 16),
                         // Blurred Card
                         Container(
                           height: 200, // Adjust height for content
                           decoration: BoxDecoration(
-                            color:
-                                Colors.black.withOpacity(0.2), // Blurred effect
+                            color: Colors.black.withOpacity(0.2), // Blurred effect
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
@@ -739,21 +739,18 @@ class DashboardView extends GetView<DashboardController> {
                                     ),
                                     const SizedBox(height: 8),
                                     Obx(() => Row(
-                                          children: [
-                                            const Icon(Icons.currency_rupee,
-                                                color: Colors.white, size: 16),
-                                            Text(
-                                              controller.showNetPay.value
-                                                  ? controller.netPay
-                                                  : "*****",
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          ],
-                                        )),
+                                      children: [
+                                        const Icon(Icons.currency_rupee, color: Colors.white, size: 16),
+                                        Text(
+                                          controller.showNetPay.value ? controller.netPay.value : "*****",
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    )),
                                   ],
                                 ),
                               ),
@@ -775,21 +772,18 @@ class DashboardView extends GetView<DashboardController> {
                                     ),
                                     const SizedBox(height: 8),
                                     Obx(() => Row(
-                                          children: [
-                                            const Icon(Icons.currency_rupee,
-                                                color: Colors.white, size: 16),
-                                            Text(
-                                              controller.showGrossPay.value
-                                                  ? controller.grossPay
-                                                  : "*****",
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          ],
-                                        )),
+                                      children: [
+                                        const Icon(Icons.currency_rupee, color: Colors.white, size: 16),
+                                        Text(
+                                          controller.showGrossPay.value ? controller.grossPay.value : "*****",
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    )),
                                   ],
                                 ),
                               ),
@@ -811,22 +805,19 @@ class DashboardView extends GetView<DashboardController> {
                                     ),
                                     const SizedBox(height: 8),
                                     Obx(() => Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            const Icon(Icons.currency_rupee,
-                                                color: Colors.white, size: 16),
-                                            Text(
-                                              controller.showDeductions.value
-                                                  ? controller.deductions
-                                                  : "*****",
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          ],
-                                        )),
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(Icons.currency_rupee, color: Colors.white, size: 16),
+                                        Text(
+                                          controller.showDeductions.value ? controller.deductions.value : "*****",
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    )),
                                   ],
                                 ),
                               ),
@@ -856,6 +847,7 @@ class DashboardView extends GetView<DashboardController> {
                               ),
                             ],
                           ),
+
                         ),
 
                         const SizedBox(height: 16),
@@ -867,41 +859,39 @@ class DashboardView extends GetView<DashboardController> {
                             const Text(
                               "Show Salary",
                               style: TextStyle(
-                                  fontSize: 20,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w500),
+                                fontSize: 20,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500
+                              ),
                             ),
                             const SizedBox(width: 8),
                             Obx(() => Switch(
-                                  value: controller.showNetPay
-                                      .value, // Bind to the Net Pay toggle
-                                  onChanged: (bool value) {
-                                    // Toggle all fields based on switch value
-                                    controller.showNetPay.value = value;
-                                    controller.showGrossPay.value = value;
-                                    controller.showDeductions.value = value;
-                                  },
-                                  activeColor: Colors.white,
-                                  activeTrackColor: Colors.blue,
-                                  inactiveThumbColor: Colors.white,
-                                  inactiveTrackColor:
-                                      Colors.grey.withOpacity(1),
-                                )),
+                              value: controller.showNetPay.value, // Bind to the Net Pay toggle
+                              onChanged: (bool value) {
+                                // Toggle all fields based on switch value
+                                controller.showNetPay.value = value;
+                                controller.showGrossPay.value = value;
+                                controller.showDeductions.value = value;
+                              },
+                              activeColor: Colors.white,
+                              activeTrackColor: Colors.blue,
+                              inactiveThumbColor: Colors.white,
+                              inactiveTrackColor: Colors.grey.withOpacity(1),
+                            )),
                           ],
                         ),
                       ],
                     ),
                   ),
                 ),
-                const SizedBox(
-                  height: 30,
-                ),
+
+                const SizedBox(height: 30,),
+
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: Container(
                     height: 320, // Adjusted height to accommodate all content
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
@@ -924,6 +914,8 @@ class DashboardView extends GetView<DashboardController> {
                         ),
                       ],
                     ),
+
+
 
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -960,6 +952,7 @@ class DashboardView extends GetView<DashboardController> {
                               color: Colors.white,
                             ),
                             const SizedBox(height: 12),
+
                             const Text(
                               "Your IT declarations is now considered \n for May 2024.",
                               textAlign: TextAlign.center,
@@ -997,10 +990,11 @@ class DashboardView extends GetView<DashboardController> {
                     ),
                   ),
                 ),
-                const SizedBox(
-                  height: 30,
-                ),
+
+                const SizedBox(height: 30,),
+
                 Container(
+
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Colors.white,

@@ -10,6 +10,8 @@ import '../modules/applyRegularization/bindings/apply_regularization_binding.dar
 import '../modules/applyRegularization/views/apply_regularization_view.dart';
 import '../modules/attendanceInfo/bindings/attendance_info_binding.dart';
 import '../modules/attendanceInfo/views/attendance_info_view.dart';
+import '../modules/casualLeave/bindings/casual_leave_binding.dart';
+import '../modules/casualLeave/views/casual_leave_view.dart';
 import '../modules/changePassword/bindings/change_password_binding.dart';
 import '../modules/changePassword/views/change_password_view.dart';
 import '../modules/dashboard/bindings/dashboard_binding.dart';
@@ -178,6 +180,11 @@ class AppPages {
       name: _Paths.PAYSLIP_DETAILS,
       page: () => const PayslipDetailsView(),
       binding: PayslipDetailsBinding(),
+    ),
+    GetPage(
+      name: _Paths.CASUAL_LEAVE,
+      page: () => const CasualLeaveView(),
+      binding: CasualLeaveBinding(),
     ),
 
     GetPage(

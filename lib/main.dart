@@ -8,6 +8,7 @@ import 'package:greyt_hr/app/modules/action/controllers/action_controller.dart';
 import 'package:greyt_hr/app/modules/applyLeave/controllers/apply_leave_controller.dart';
 import 'package:greyt_hr/app/modules/applyRegularization/controllers/apply_regularization_controller.dart';
 import 'package:greyt_hr/app/modules/attendanceInfo/controllers/attendance_info_controller.dart';
+import 'package:greyt_hr/app/modules/casualLeave/controllers/casual_leave_controller.dart';
 import 'package:greyt_hr/app/modules/changePassword/controllers/change_password_controller.dart';
 import 'package:greyt_hr/app/modules/dashboard/controllers/dashboard_controller.dart';
 import 'package:greyt_hr/app/modules/dayDetails/controllers/day_details_controller.dart';
@@ -57,6 +58,7 @@ void main() async {
   Get.put(DayDetailsController());
   Get.put(PayslipsController());
   Get.put(PayslipDetailsController());
+  Get.put(CasualLeaveController());
 
   runApp(
     GetMaterialApp(

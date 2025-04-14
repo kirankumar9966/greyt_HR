@@ -1,13 +1,15 @@
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
+import '../../../services/dashboard_service.dart';
+
 class PayslipDetailsController extends GetxController {
   //TODO: Implement PayslipDetailsController
   var isEarningsExpanded = false.obs;
   var isDeductionsExpanded = false.obs;
-
+  var isLoading = true.obs;
   var selectedYear = "2025 - 2026".obs;
-  var selectedMonth = "".obs;
+  var selectedMonth = "Feb".obs;
   var months = <String>[].obs;
 
   final Map<String, String> employeeDetails = {
@@ -27,17 +29,39 @@ class PayslipDetailsController extends GetxController {
   };
 
 
+  Future<void> fetchSalaryDetails() async{
+    isLoading.value = true;
+    final response = await DashboardService.payslip();
+
+
+    if (response['status'] == 'success') {
+      final data = response['data'];
+      final components = data['salary_components'];
+
+      // errorMessage.value = '';
+      isLoading.value = false;
+    } else {
+      // errorMessage.value = response['message'] ?? 'Failed to fetch payslip';
+    }
+
+    isLoading.value = false;
+
+
+  }
+
+
   List<String> years = ["2023 - 2024", "2024 - 2025", "2025 - 2026"];
 
   void _setPreviousMonth() {
-    String currentMonth = DateFormat('MMM').format(DateTime.now()); // e.g., "Apr"
-    if (months.contains(currentMonth)) {
-      selectedMonth.value = currentMonth; // ✅ Set current month dynamically
+    String currentMonth = DateFormat('MMM').format(DateTime.now()); // Current month in "Jan" format
+    int currentIndex = months.indexOf(currentMonth);
+
+    if (currentIndex > 0) {
+      selectedMonth.value = months[currentIndex - 1]; // Highlight previous month
     } else {
-      selectedMonth.value = "Jan"; // Default fallback
+      selectedMonth.value = "Dec"; // If January, set December by default
     }
   }
-
 
   void updateYear(String year) {
     selectedYear.value = year;
@@ -56,12 +80,13 @@ class PayslipDetailsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    _setPreviousMonth();
+    fetchSalaryDetails();
     months.assignAll(["Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct"]);
-    _setPreviousMonth(); // ✅ Call AFTER months are assigned
-  }
 
+  }
   void updateMonth(String month) {
-    selectedMonth.value = month; // ✅ Updates selected month dynamically
+    selectedMonth.value = month; // ✅ Correctly updating the observable value
   }
   @override
   void onReady() {

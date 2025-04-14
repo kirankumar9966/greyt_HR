@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:get/get.dart';
-
+import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
@@ -31,9 +31,17 @@ class DashboardController extends GetxController {
   var isSwiping = false.obs;
  // Add this
 
-  RxBool showNetPay = false.obs;
-  RxBool showGrossPay = false.obs;
-  RxBool showDeductions = false.obs;
+  // Sample salary values
+  var  netPay = ''.obs;
+  var  grossPay = ''.obs;
+  var  deductions = ''.obs;
+  var  monthOfSalary = ''.obs;
+
+  var showNetPay = false.obs;
+  var showGrossPay = false.obs;
+  var showDeductions = false.obs;
+  var isLoading = true.obs;
+  var errorMessage = ''.obs;
 
   RxList<Holiday> allHolidays = <Holiday>[].obs;
   RxList<Holiday> filteredHolidays = <Holiday>[].obs;
@@ -44,12 +52,48 @@ class DashboardController extends GetxController {
 
   // Toggle sidebar
 
+  String formatMonth(String rawDate) {
+    try {
+      final date = DateTime.parse("$rawDate-01");
+      return "${_monthName(date.month)} ${date.year}";
+    } catch (e) {
+      return rawDate;
+    }
+  }
+
+  String _monthName(int month) {
+    const months = [
+      '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    return months[month];
+  }
+
+  Future<void> fetchSalaryDetails() async{
+    isLoading.value = true;
+    final response = await DashboardService.payslip();
 
 
-  // Sample salary values
-  final String netPay = "50,000.00";
-  final String grossPay = "70,000.00";
-  final String deductions = "20,000.00";
+    if (response['status'] == 'success') {
+      print("kirann");
+      final data = response['data'];
+      final components = data['salary_components'];
+      netPay.value = components['net_pay'].toString();
+      grossPay.value = components['gross'].toString();
+      deductions.value = components['total_deductions'].toString();
+      monthOfSalary.value = formatMonth(data['month_of_salary']);
+
+      errorMessage.value = '';
+      isLoading.value = false;
+    } else {
+      errorMessage.value = response['message'] ?? 'Failed to fetch payslip';
+    }
+
+    isLoading.value = false;
+
+
+  }
+
 
 
   var isSidebarVisible = false.obs;
@@ -71,8 +115,9 @@ class DashboardController extends GetxController {
   }
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
+    await fetchSalaryDetails();
     swipeTime.value = '';
     isSignedIn.value = false;
     fetchHolidays();

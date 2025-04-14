@@ -3,6 +3,14 @@ import 'package:get/get.dart';
 class PayslipsController extends GetxController {
   //TODO: Implement PayslipsController
 
+  var selectedYear ="2025".obs;
+  List<String> years = ["2023", "2024", "2025"];
+
+  void updateYear(String year) {
+    selectedYear.value = year;
+  }
+
+
   var isExpanded =false.obs;
 
   void toggleExpansion(){

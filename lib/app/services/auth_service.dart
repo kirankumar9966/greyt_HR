@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:get/get.dart';
+import 'package:greyt_hr/app/ApiConstants/api_constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:get_storage/get_storage.dart';
 import '../modules/dashboard/controllers/dashboard_controller.dart';
@@ -27,8 +28,9 @@ class AuthService {
   var isSwiping = false.obs;
   static Future<Map<String, dynamic>> login(String empId, String password) async {
     try {
-      final url = Uri.parse(baseUrl);
-
+      final url = Uri.parse(ApiConstants.login);
+      print("object,$url");
+      print("object,$password");
       final response = await http.post(
         url,
         headers: {
@@ -41,6 +43,7 @@ class AuthService {
         }),
       );
 
+      print("kiran,$response.statusCode");
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
 

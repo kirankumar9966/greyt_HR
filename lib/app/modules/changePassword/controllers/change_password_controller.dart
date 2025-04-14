@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+
+import '../../../services/change_password_service.dart';
 
 class ChangePasswordController extends GetxController {
   // Use TextEditingController
@@ -23,6 +26,58 @@ class ChangePasswordController extends GetxController {
   var isPasswordVisible = false.obs;
   var isConfirmPasswordVisible = false.obs;
   var isOldPasswordVisible = false.obs;
+
+  var currentPasswordError = ''.obs;
+  var newPasswordError = ''.obs;
+  var confirmPasswordError = ''.obs;
+
+  void submitChangePassword() async {
+    final current = oldPasswordController.text.trim();
+    final newPass = newPasswordController.text.trim();
+    final confirm = confirmPasswordController.text.trim();
+
+    // Reset all errors
+    currentPasswordError.value = '';
+    newPasswordError.value = '';
+    confirmPasswordError.value = '';
+
+    final response = await ChangePasswordService.changePassword(
+      currentPassword: current,
+      newPassword: newPass,
+      confirmPassword: confirm,
+    );
+
+    if (response['status'] == 'success') {
+      Get.back();
+      Fluttertoast.showToast(
+        msg: response['message'] ?? "Password updated successfully",
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+      );
+    } else {
+      final message = response['message'] ?? '';
+      // Map specific messages to fields
+      if (message.contains("Current password is incorrect")) {
+        currentPasswordError.value = message;
+      } else if (message.contains("New password cannot be the same")) {
+        newPasswordError.value = message;
+      } else if (message.contains("do not match")) {
+        confirmPasswordError.value = message;
+      } else {
+        // fallback for unknown errors
+        Fluttertoast.showToast(
+          msg: message,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+        );
+      }
+    }
+  }
+
 
   @override
   void onInit() {

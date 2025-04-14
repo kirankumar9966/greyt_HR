@@ -92,13 +92,9 @@ class ChangePasswordView extends StatelessWidget {
 
                 // Change Password Button
                 ElevatedButton(
-                  onPressed: controller.isFormValid()
-                      ? () {
-                    Get.snackbar("Success", "Password changed successfully!",
-                        snackPosition: SnackPosition.BOTTOM);
-                    Navigator.pop(context);
-                  }
-                      : null,
+                    onPressed: controller.isFormValid()
+                        ? () => controller.submitChangePassword()
+                        : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor:
                     controller.isFormValid() ? Colors.green : Colors.grey,
@@ -117,9 +113,19 @@ class ChangePasswordView extends StatelessWidget {
   // Password Input Field
   Widget _buildPasswordField(ChangePasswordController controller, String label,
       {bool isNewPassword = false, bool isOldPassword = false, bool isConfirmPassword = false}) {
+    String? errorText = '';
+
+    if (isOldPassword) {
+      errorText = controller.currentPasswordError.value;
+    } else if (isNewPassword) {
+      errorText = controller.newPasswordError.value;
+    } else if (isConfirmPassword) {
+      errorText = controller.confirmPasswordError.value;
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Column(
+      child: Obx(() => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           TextField(
@@ -142,17 +148,9 @@ class ChangePasswordView extends StatelessWidget {
               if (isNewPassword) controller.validatePassword(value);
               if (isConfirmPassword) controller.validateConfirmPassword(value);
             },
-            cursorColor: Colors.blueGrey,
             decoration: InputDecoration(
               labelText: label,
-              labelStyle: TextStyle(color: Colors.grey), // Label color
-              enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey), // Bottom border color when not focused
-              ),
-              focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.blue, width: 2), // Bottom border color when focused
-              ),
-              border: const OutlineInputBorder(),
+              errorText: errorText!.isNotEmpty ? errorText : null,
               suffixIcon: IconButton(
                 icon: Icon(
                   isOldPassword
@@ -182,20 +180,11 @@ class ChangePasswordView extends StatelessWidget {
               ),
             ),
           ),
-          if (isConfirmPassword && controller.isTyping.value) // Show error only when typing
-            Obx(() => controller.isConfirmPasswordValid.value
-                ? const SizedBox.shrink() // Hide message if valid
-                : Padding(
-              padding: const EdgeInsets.only(top: 5),
-              child: Text(
-                "Passwords do not match!",
-                style: TextStyle(color: Colors.red, fontSize: 12),
-              ),
-            )),
         ],
-      ),
+      )),
     );
   }
+
 
 
   // Password Validation Row
