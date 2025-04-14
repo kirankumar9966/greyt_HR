@@ -1,11 +1,13 @@
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
+import '../../../services/dashboard_service.dart';
+
 class PayslipDetailsController extends GetxController {
   //TODO: Implement PayslipDetailsController
   var isEarningsExpanded = false.obs;
   var isDeductionsExpanded = false.obs;
-
+  var isLoading = true.obs;
   var selectedYear = "2025 - 2026".obs;
   var selectedMonth = "Feb".obs;
   var months = <String>[].obs;
@@ -25,6 +27,27 @@ class PayslipDetailsController extends GetxController {
     "PF UAN": "10192883388737",
     "LOP": "0.000",
   };
+
+
+  Future<void> fetchSalaryDetails() async{
+    isLoading.value = true;
+    final response = await DashboardService.payslip();
+
+
+    if (response['status'] == 'success') {
+      final data = response['data'];
+      final components = data['salary_components'];
+
+      // errorMessage.value = '';
+      isLoading.value = false;
+    } else {
+      // errorMessage.value = response['message'] ?? 'Failed to fetch payslip';
+    }
+
+    isLoading.value = false;
+
+
+  }
 
 
   List<String> years = ["2023 - 2024", "2024 - 2025", "2025 - 2026"];
@@ -58,6 +81,7 @@ class PayslipDetailsController extends GetxController {
   void onInit() {
     super.onInit();
     _setPreviousMonth();
+    fetchSalaryDetails();
     months.assignAll(["Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct"]);
 
   }

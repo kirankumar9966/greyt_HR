@@ -66,6 +66,7 @@ class DashboardController extends GetxController {
 
 
     if (response['status'] == 'success') {
+      print("kirann");
       final data = response['data'];
       final components = data['salary_components'];
       netPay.value = components['net_pay'].toString();

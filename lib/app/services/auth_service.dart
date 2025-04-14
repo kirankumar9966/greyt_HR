@@ -24,7 +24,8 @@ class AuthService {
   static Future<Map<String, dynamic>> login(String empId, String password) async {
     try {
       final url = Uri.parse(ApiConstants.login);
-
+      print("object,$url");
+      print("object,$password");
       final response = await http.post(
         url,
         headers: {
@@ -37,6 +38,7 @@ class AuthService {
         }),
       );
 
+      print("kiran,$response.statusCode");
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
 

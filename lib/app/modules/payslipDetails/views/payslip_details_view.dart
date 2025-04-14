@@ -40,14 +40,14 @@ class PayslipDetailsView extends GetView<PayslipDetailsController> {
                     pw.Image(pw.MemoryImage(logoBytes), width: 80, height: 80),
                     pw.SizedBox(width: 10),
                     pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      crossAxisAlignment: pw.CrossAxisAlignment.center,
                       children: [
                         pw.Text(
                           "XSILICA SOFTWARE SOLUTIONS P LTD",
                           style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
                         ),
                         pw.Text(
-                          "3rd Floor, Unit No.4, Kapil Kavuri Hub IT Block, Hyderabad, Telangana, India",
+                          "3rd Floor, Unit No.4, Kapil Kavuri Hub IT Block,Nanakramguda Main Road , Hyderabad, Rangareddy,\n 50032, \n Telangana,\n India",
                           style: pw.TextStyle(fontSize: 10),
                         ),
                       ],
@@ -55,7 +55,7 @@ class PayslipDetailsView extends GetView<PayslipDetailsController> {
                   ],
                 ),
                 pw.SizedBox(height: 5),
-                pw.Divider(thickness: 1),
+
 
                 // Payslip Title
                 pw.Center(
@@ -69,17 +69,11 @@ class PayslipDetailsView extends GetView<PayslipDetailsController> {
                 // Employee Details Table
                 pw.Container(
                   decoration: pw.BoxDecoration(border: pw.Border.all(width: 1)),
-                  child: _buildEmployeeDetailsTable(),
+                  child: _buildDetailsTable(),
                 ),
                 pw.SizedBox(height: 10),
 
                 // Earnings & Deductions Table
-                pw.Container(
-                  decoration: pw.BoxDecoration(border: pw.Border.all(width: 1)),
-                  child: _buildEarningsDeductionsTable(),
-                ),
-                pw.SizedBox(height: 10),
-
                 // Net Pay Section (Highlighted Box)
                 pw.Container(
                   decoration: pw.BoxDecoration(border: pw.Border.all(width: 2)),
@@ -161,50 +155,192 @@ class PayslipDetailsView extends GetView<PayslipDetailsController> {
     return false;
   }
 
-  pw.Widget _buildEmployeeDetailsTable() {
-    return pw.Table(
-      border: pw.TableBorder.all(),
+  // Widget columnTitle(){
+  //   return Row(
+  //     children: [
+  //
+  //     ],
+  //   )
+  // }
+
+
+// Helper for Earnings Rows
+  pw.Widget _earningsRow(String label, String full, {String? actual, bool isHeader = false, bool isBold = false}) {
+    final style = pw.TextStyle(
+      fontWeight: (isHeader || isBold) ? pw.FontWeight.bold : pw.FontWeight.normal,
+      fontSize: 10,
+    );
+    return pw.Row(
+      mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
       children: [
-        _buildTableRow(["Name:", "Obula Kiran Kumar", "Employee No:", "XSS-0474"]),
-        _buildTableRow(["Joining Date:", "02 Jan 2023", "Bank Name:", "ICICI"]),
-        _buildTableRow(["Designation:", "Software Engineer", "Bank Account No:", "067401005433"]),
-        _buildTableRow(["PAN Number:", "LAAPK2826H", "PF No:", "APHYD00562260000010288"]),
-        _buildTableRow(["PF UAN:", "101902552104", "", ""]),
+        pw.Expanded(flex: 2, child: pw.Text(label, style: style)),
+        pw.Expanded(child: pw.Text(full, style: style, textAlign: pw.TextAlign.right)),
+        if (actual != null)
+          pw.Expanded(child: pw.Text(actual, style: style, textAlign: pw.TextAlign.right)),
       ],
     );
   }
 
-  pw.Widget _buildEarningsDeductionsTable() {
-    return pw.Table(
-      border: pw.TableBorder.all(),
+// Helper for Deductions Rows
+  pw.Widget _deductionRow(String label, String amount, {bool isBold = false}) {
+    final style = pw.TextStyle(
+      fontWeight: isBold ? pw.FontWeight.bold : pw.FontWeight.normal,
+      fontSize: 10,
+    );
+    return pw.Row(
+      mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
       children: [
-        _buildTableRow(["Earnings", "Full", "Actual", "Deductions", "Actual"], bold: true),
-        _buildTableRow(["BASIC", "8762", "8762", "PF", "1051"]),
-        _buildTableRow(["HRA", "3505", "3505", "ESI", "157"]),
-        _buildTableRow(["CONVEYANCE", "1600", "1600", "PROF TAX", "200"]),
-        _buildTableRow(["MEDICAL ALLOWANCE", "1250", "1250", "", ""]),
-        _buildTableRow(["SPECIAL ALLOWANCE", "5736", "5736", "", ""]),
-        _buildTableRow(["Total Earnings: INR", "20853", "20853", "Total Deductions: INR", "1408"], bold: true),
+        pw.Expanded(flex: 2, child: pw.Text(label, style: style)),
+        pw.Text(amount, style: style),
       ],
     );
   }
 
 
-  pw.TableRow _buildTableRow(List<String> cells, {bool bold = false}) {
-    return pw.TableRow(
-      children: cells.map((text) => _buildTableCell(text, bold: bold)).toList(),
-    );
-  }
 
-  pw.Widget _buildTableCell(String text, {bool bold = false}) {
-    return pw.Padding(
-      padding: pw.EdgeInsets.all(5),
-      child: pw.Text(
-        text,
-        style: pw.TextStyle(fontSize: 10, fontWeight: bold ? pw.FontWeight.bold : pw.FontWeight.normal),
+  pw.Widget _buildDetailsTable() {
+    return pw.Container(
+      decoration: pw.BoxDecoration(border: pw.Border.all()), // Outer border
+      child: pw.Column(
+        children: [
+          // Header Section
+          pw.Row(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              // Left Side Details
+              pw.Expanded(
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    _buildRow(["Name:", "Obula Kiran Kumar"]),
+                    _buildRow(["Joining Date:", "02 Jan 2023"]),
+                    _buildRow(["Designation:", "Software Engineer"]),
+                    _buildRow(["Department:", "Technology"]),
+                    _buildRow(["Location:", "Hyderabad"]),
+                    _buildRow(["Effective Work Days:", "30"]),
+                    _buildRow(["LOP:", "0"]),
+                  ],
+                ),
+              ),
+              // Vertical Divider
+              pw.Container(width: 1, height: 150, color: PdfColors.black),
+              // Right Side Details
+              pw.Expanded(
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    _buildRow(["Employee No:", "XSS-0474"]),
+                    _buildRow(["Bank Name:", "ICICI"]),
+                    _buildRow(["Bank Account No:", "067401005433"]),
+                    _buildRow(["PAN Number:", "LAAPK2826H"]),
+                    _buildRow(["PF No:", "APHYD00562260000010288"]),
+                    _buildRow(["PF UAN:", "101902552104"]),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          // Earnings and Deductions Section
+          pw.Container(
+            decoration: pw.BoxDecoration(border: pw.Border.all()), // Outer border
+            child: pw.Row(
+              children: [
+                // Earnings Header
+                pw.Expanded(
+                  child: pw.Container(
+                    color: PdfColors.grey300,
+                    padding: const pw.EdgeInsets.all(5),
+                    child: pw.Row(
+                      children: [
+                        pw.Expanded(child: pw.Text("Earnings", textAlign: pw.TextAlign.left)),
+                        pw.Text("Full"),
+                        pw.SizedBox(width: 15),
+                        pw.Text("Actual"),
+                      ],
+                    ),
+                  ),
+                ),
+                // Deductions Header
+                pw.Expanded(
+                  child: pw.Container(
+                    color: PdfColors.grey300,
+                    padding: const pw.EdgeInsets.all(5),
+                    child: pw.Text("Deductions", textAlign: pw.TextAlign.center),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Data Rows
+          pw.Row(
+            children: [
+              // Earnings Rows
+              pw.Expanded(
+                flex: 2,
+                child: pw.Column(
+                  children: [
+                    _earningsRow("BASIC", "8762", actual: "8762"),
+                    _earningsRow("HRA", "3505", actual: "3505"),
+                    _earningsRow("CONVEYANCE", "1600", actual: "1600"),
+                    _earningsRow("MEDICAL ALLOWANCE", "1250", actual: "1250"),
+                    _earningsRow("SPECIAL ALLOWANCE", "5736", actual: "5736"),
+                    pw.Divider(thickness: 0.5, color: PdfColors.black),
+                    _earningsRow("Total Earnings: INR", "20853", actual: "20853", isBold: true),
+                  ],
+                ),
+              ),
+              // Deductions Rows
+              pw.Expanded(
+                flex: 1,
+                child: pw.Column(
+                  children: [
+                    _deductionRow("PF", "1051"),
+                    _deductionRow("ESI", "157"),
+                    _deductionRow("PROF TAX", "200"),
+                    pw.Divider(thickness: 0.5, color: PdfColors.black),
+                    _deductionRow("Total Deductions: INR", "1408", isBold: true),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
+
+
+  pw.Widget _buildRow(List<String> cells, {bool bold = false}) {
+    return pw.Row(
+      children: [
+        pw.Expanded(
+          flex: 3,
+          child: pw.Container(
+            padding: const pw.EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+            child: pw.Text(
+              cells[0],
+              style: pw.TextStyle(
+                fontWeight: bold ? pw.FontWeight.bold : pw.FontWeight.normal,
+              ),
+            ),
+          ),
+        ),
+        pw.Expanded(
+          flex: 5,
+          child: pw.Container(
+            padding: const pw.EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+            child: pw.Text(
+              cells[1],
+              style: pw.TextStyle(
+                fontWeight: bold ? pw.FontWeight.bold : pw.FontWeight.normal,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
