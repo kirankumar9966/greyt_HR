@@ -8,16 +8,22 @@ import 'package:greyt_hr/app/modules/engage/models/engage_model.dart';
 import 'package:greyt_hr/app/services/auth_service.dart';
 
 import '../../footer/views/footer_view.dart';
+import 'dart:typed_data';
+import 'dart:convert';
 
+import '../../profile/controllers/profile_controller.dart';
 
 class EngageView extends StatefulWidget {
+
   const EngageView({super.key});
 
   @override
+
   State<EngageView> createState() => _EngageViewState();
 }
 
 class _EngageViewState extends State<EngageView> {
+  final profileController = Get.find<ProfileController>();
   String selectedActivity = "All Activities"; // Default selection
   String selectedSort = "All Feeds"; // Default sorting
   String selectedGroup = "Groups";
@@ -29,7 +35,11 @@ class _EngageViewState extends State<EngageView> {
   @override
   void initState() {
     super.initState();
-    fetchFeedData();
+    if (AuthService.getToken() != null && AuthService.getEmpId() != null) {
+
+      fetchFeedData();
+    }
+
   }
 
   Future<void> fetchFeedData() async {
@@ -53,8 +63,7 @@ class _EngageViewState extends State<EngageView> {
         body: jsonEncode({}), // Send an empty body or add filters here
       );
 
-      print("🌐 Status Code: ${response.statusCode}");
-      print("📦 Raw Response: ${response.body}");
+
 
       if (response.statusCode == 200) {
         try {
@@ -460,30 +469,38 @@ class _EngageViewState extends State<EngageView> {
     );
   }
   Widget buildFeedCard(Datum post) {
-    final String initials = post.employee.name.isNotEmpty
-        ? post.employee.name.split(" ").map((e) => e[0]).take(2).join()
-        : "?";
+    final String initials = post.employee.name.trim().isEmpty
+        ? "?"
+        : post.employee.name.trim().split(" ").where((e) => e.isNotEmpty).map((e) => e[0]).take(2).join();
 
     final String? base64Image = post.employee.image;
     late Widget imageWidget;
 
     try {
-      if (base64Image != null && base64Image.isNotEmpty) {
-        final decodedBytes = base64Decode(base64Image);
-        imageWidget = Image.memory(
-          decodedBytes,
-          fit: BoxFit.cover,
-          width: 70,
-          height: 70,
-          errorBuilder: (context, error, stackTrace) {
-            return _buildInitials(initials);
-          },
+      if (base64Image != null && base64Image.isNotEmpty && isValidBase64(base64Image)) {
+        final Uint8List decodedBytes = base64Decode(base64Image);
+        imageWidget = CircleAvatar(
+          radius: 35,
+          backgroundImage: MemoryImage(decodedBytes),
+          backgroundColor: Colors.white,
         );
       } else {
-        imageWidget = _buildInitials(initials);
+        throw Exception("No image found");
       }
-    } catch (_) {
-      imageWidget = _buildInitials(initials);
+    } catch (e) {
+      // If decoding fails, show initials
+      imageWidget = CircleAvatar(
+        radius: 35,
+        backgroundColor: Colors.white,
+        child: Text(
+          initials.toUpperCase(),
+          style: const TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF607D8B),
+          ),
+        ),
+      );
     }
 
     return Card(
@@ -501,13 +518,13 @@ class _EngageViewState extends State<EngageView> {
               width: 100,
               height: 50,
             ),
-
             const SizedBox(height: 10),
             Text(post.time, style: const TextStyle(fontSize: 12)),
             const SizedBox(height: 8),
             Text(post.message, style: const TextStyle(fontSize: 15)),
             const SizedBox(height: 20),
 
+            // Profile image with initials fallback
             Center(
               child: Stack(
                 clipBehavior: Clip.none,
@@ -541,9 +558,7 @@ class _EngageViewState extends State<EngageView> {
             const SizedBox(height: 30),
             Center(
               child: Text(
-                post.type == Type.DATE_OF_BIRTH
-                    ? "🎂 Happy Birthday"
-                    : "🎉 Work Anniversary",
+                post.type == Type.DATE_OF_BIRTH ? "🎂 Happy Birthday" : "🎉 Work Anniversary",
                 style: const TextStyle(fontSize: 14),
               ),
             ),
@@ -551,10 +566,7 @@ class _EngageViewState extends State<EngageView> {
             Center(
               child: Text(
                 post.employee.name,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 16,
-                ),
+                style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
               ),
             ),
             const SizedBox(height: 10),
@@ -570,6 +582,14 @@ class _EngageViewState extends State<EngageView> {
       ),
     );
   }
+
+// ✅ Base64 validation function
+  bool isValidBase64(String str) {
+    final RegExp regex = RegExp(r'^[A-Za-z0-9+/]+={0,2}$');
+    return regex.hasMatch(str);
+  }
+
+
 
   Widget fallbackImage() {
     return Image.network(
@@ -634,3 +654,4 @@ class _EngageViewState extends State<EngageView> {
   }
 
 }
+

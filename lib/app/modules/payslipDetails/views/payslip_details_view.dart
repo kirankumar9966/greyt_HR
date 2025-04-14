@@ -49,45 +49,44 @@ class PayslipDetailsView extends GetView<PayslipDetailsController> {
                     Expanded(
                       child: SizedBox(
                         height: 40,
-                        child: Obx(
-                              () => ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: controller.months.length, // ✅ Now this is reactive
-                            itemBuilder: (context, index) {
-                              String month = controller.months[index]; // ✅ Reactive list access
-                              bool isSelected = month == controller.selectedMonth.value; // ✅ This now correctly checks selection
-        
-                              return GestureDetector(
-                                onTap: () => controller.updateMonth(month), // ✅ Update selected month
-                                child: AnimatedContainer(
-                                  duration: const Duration(milliseconds: 200), // ✅ Smooth transition effect
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                                  decoration: BoxDecoration(
-                                    color: isSelected ? Colors.pink.shade700 : Colors.white, // ✅ Highlight if selected
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(
-                                      color: isSelected ? Colors.pink.shade700 : Colors.blueGrey, // ✅ Change border color
-                                      width: isSelected ? 2 : 1, // ✅ Slightly thicker border when selected
-                                    ),
-                                  ),
-                                  child: Text(
-                                    month,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: isSelected ? Colors.white : Colors.black, // ✅ Text color changes
-                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal, // ✅ Bolder text when selected
-                                    ),
+                        child: Obx(() => ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: controller.months.length, // ✅ Reactive months list
+                          itemBuilder: (context, index) {
+                            String month = controller.months[index]; // ✅ Get month dynamically
+                            bool isSelected = month == controller.selectedMonth.value; // ✅ Check selection
+
+                            return GestureDetector(
+                              onTap: () => controller.updateMonth(month), // ✅ Update selected month dynamically
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                margin: const EdgeInsets.symmetric(horizontal: 4),
+                                decoration: BoxDecoration(
+                                  color: isSelected ? Colors.pink.shade700 : Colors.white, // ✅ Highlight selection
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: isSelected ? Colors.pink.shade700 : Colors.blueGrey, // ✅ Border changes dynamically
+                                    width: isSelected ? 2 : 1,
                                   ),
                                 ),
-                              );
-                            },
-                          ),
-                        ),
+                                child: Text(
+                                  month,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: isSelected ? Colors.white : Colors.black, // ✅ Change text color dynamically
+                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal, // ✅ Bold if selected
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        )),
                       ),
                     ),
-        
-        
+
+
+
                   ],
                 ),
               ),
@@ -115,19 +114,48 @@ class PayslipDetailsView extends GetView<PayslipDetailsController> {
                       ),
                     ),
                     const SizedBox(height: 5),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    Stack(
+                      alignment: Alignment.center, // Aligns the children properly
                       children: [
-                        const Text(
-                          "₹ 19,445.00",
-                          style: TextStyle(
-                            fontSize: 24,
-                            color: Colors.green,
-                            fontWeight: FontWeight.bold,
+                        // Circular Background for ₹ Symbol
+                        Container(
+                          width: 20,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            color: Color(0xFF64E2CF), // Teal background
+                            shape: BoxShape.circle, // Makes it circular
                           ),
                         ),
+
+                        // ₹ Symbol (Centered inside the Circle)
+                        Positioned(
+                          top: 10, // Moves ₹ slightly upwards for better positioning
+                          child: Text(
+                            "₹",
+                            style: TextStyle(
+                              color: Colors.black, // White ₹ symbol
+                              fontSize: 16, // Adjusted size for better visibility
+                              fontWeight: FontWeight.bold, // Make it bold
+                            ),
+                          ),
+                        ),
+
+                        // Amount Text Below the Circle
+
+
+                         // Adjusts position below the circle
+                         Text(
+                            "19,445.00",
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black, // Keep it readable
+                            ),
+                          ),
+
                       ],
                     ),
+
                     const SizedBox(height: 5),
                     const Text(
                       "Rupees Nineteen Thousand Four Hundred Forty Five Only",
@@ -141,6 +169,7 @@ class PayslipDetailsView extends GetView<PayslipDetailsController> {
         
               // Earnings Section
               _ExpandableTile(
+
                 title: "Earnings",
                 amount: "₹ 20,853.00",
                 items: [
@@ -154,7 +183,7 @@ class PayslipDetailsView extends GetView<PayslipDetailsController> {
                 toggleExpansion: controller.toggleEarnings,
                 iconColor: Colors.green,
               ),
-        
+
               // Deductions Section
               _ExpandableTile(
                 title: "Deductions",
@@ -220,10 +249,14 @@ class PayslipDetailsView extends GetView<PayslipDetailsController> {
                               color: Colors.black, // ✅ Normal Black for Values
                             ),
                           ),
+                          SizedBox(height: 10),
                         ],
                       ),
+
                     );
+
                   }).toList(),
+
                 ),
               ],
             ),
@@ -270,6 +303,11 @@ class _ExpandableTile extends StatelessWidget {
       child: Column(
         children: [
           ListTile(
+            leading: Icon(
+              isExpanded.value ? Icons.remove : Icons.add, // ✅ Toggle + / - icon
+              color: iconColor,
+              size: 18,
+            ),
             title: Text(
               title,
               style: const TextStyle(fontWeight: FontWeight.bold),
@@ -279,10 +317,22 @@ class _ExpandableTile extends StatelessWidget {
               children: [
                 Text(amount, style: const TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(width: 8),
-                Icon(
-                  isExpanded.value ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                  color: iconColor,
+                Container(
+                  width: 20,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    color: Colors.blue, // Background color blue
+                    shape: BoxShape.circle, // Makes it circular
+                  ),
+                  child: Center(
+                    child: Icon(
+                      isExpanded.value ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                      color: Colors.white, // Icon color white
+                      size: 16, // Slightly smaller to fit inside the circle
+                    ),
+                  ),
                 ),
+
               ],
             ),
             onTap: toggleExpansion, // Toggle on tap

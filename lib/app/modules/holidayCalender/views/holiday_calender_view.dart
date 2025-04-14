@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import '../../dashboard/models/HolidayCalender.dart';
 import '../controllers/holiday_calender_controller.dart';
+
 
 class HolidayCalenderView extends GetView<HolidayCalenderController> {
   const HolidayCalenderView({super.key});
@@ -13,35 +16,40 @@ class HolidayCalenderView extends GetView<HolidayCalenderController> {
       appBar: AppBar(
         title: const Text('Holiday Calendar'),
         centerTitle: true,
+
       ),
       body: Column(
         children: [
           // Dropdowns for Year & Holiday Type Selection
-          Padding(
-            padding: const EdgeInsets.all(12.0),
+          Container(
+            color: Colors.lightBlueAccent.withOpacity(0.1),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Year Selection Dropdown
                 Obx(() => DropdownButton<int>(
                   value: controller.selectedYear.value,
                   onChanged: (year) => controller.updateYear(year!),
                   items: [2025, 2026, 2027, 2028].map((year) {
                     return DropdownMenuItem<int>(
                       value: year,
-                      child: Text("$year"),
+                      child: Text(
+                        "$year",
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
                     );
                   }).toList(),
                 )),
-
-                // Holiday Type Dropdown
                 Obx(() => DropdownButton<String>(
                   value: controller.selectedHolidayType.value,
                   onChanged: (type) => controller.updateHolidayType(type!),
                   items: ["All Holidays", "General Holidays"].map((type) {
                     return DropdownMenuItem<String>(
                       value: type,
-                      child: Text(type),
+                      child: Text(
+                        type,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
                     );
                   }).toList(),
                 )),
@@ -52,45 +60,34 @@ class HolidayCalenderView extends GetView<HolidayCalenderController> {
           // Holiday List
           Expanded(
             child: Obx(() {
-              var groupedHolidays = _groupHolidaysByMonth(controller.filteredHolidays);
+              if (controller.filteredHolidays.isEmpty) {
+                return const Center(child: Text("🎉 No upcoming holidays found"));
+              }
+
+              final grouped = _groupByMonth(controller.filteredHolidays);
 
               return ListView.builder(
-                itemCount: groupedHolidays.keys.length,
+                itemCount: grouped.keys.length,
                 itemBuilder: (context, index) {
-                  String month = groupedHolidays.keys.elementAt(index);
-                  List<Map<String, dynamic>> monthHolidays = groupedHolidays[month]!;
+                  final month = grouped.keys.elementAt(index);
+                  final holidaysInMonth = grouped[month]!;
 
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Month Header
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         child: Text(
                           "$month ${controller.selectedYear.value}",
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.lightBlueAccent,
+                          ),
                         ),
                       ),
 
-                      // Holiday Cards or "No Holidays" Message
-                      monthHolidays.isEmpty
-                          ? Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          "No holidays to show!",
-                          style: TextStyle(fontSize: 14, color: Colors.grey),
-                          textAlign: TextAlign.center,
-                        ),
-                      )
-                          : Column(
-                        children: monthHolidays.map((holiday) {
-                          return _buildHolidayCard(
-                            holiday["date"],
-                            holiday["day"],
-                            holiday["name"],
-                          );
-                        }).toList(),
-                      ),
+                      ...holidaysInMonth.map((holiday) => _buildHolidayCard(holiday)).toList(),
                     ],
                   );
                 },
@@ -102,56 +99,66 @@ class HolidayCalenderView extends GetView<HolidayCalenderController> {
     );
   }
 
-  // Helper Function: Group Holidays by Month
-  Map<String, List<Map<String, dynamic>>> _groupHolidaysByMonth(
-      List<Map<String, dynamic>> holidays) {
-    Map<String, List<Map<String, dynamic>>> groupedHolidays = {};
-    for (var holiday in holidays) {
-      String month = holiday["month"];
-      if (!groupedHolidays.containsKey(month)) {
-        groupedHolidays[month] = [];
-      }
-      groupedHolidays[month]!.add(holiday);
+  Map<String, List<Holiday>> _groupByMonth(List<Holiday> holidays) {
+    final Map<String, List<Holiday>> map = {};
+    for (var h in holidays) {
+      final parsedDate = DateTime.tryParse(h.date);
+      final month = parsedDate != null ? DateFormat('MMMM').format(parsedDate) : "Unknown";
+      map.putIfAbsent(month, () => []);
+      map[month]!.add(h);
     }
-    return groupedHolidays;
+    return map;
   }
 
-  // Holiday Card Widget
-  Widget _buildHolidayCard(String date, String day, String name) {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      padding: EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          // Date Section
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                date,
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              Text(
-                day,
-                style: TextStyle(fontSize: 14, color: Colors.grey),
-              ),
-            ],
-          ),
-          SizedBox(width: 12),
+  Widget _buildHolidayCard(Holiday holiday) {
+    final parsedDate = DateTime.tryParse(holiday.date);
+    final date = parsedDate != null ? DateFormat('dd').format(parsedDate) : '??';
+    final day = holiday.day;
+    final name = holiday.festival;
 
-          // Holiday Name
-          Expanded(
-            child: Text(
-              name,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-            ),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Colors.lightBlueAccent, Colors.grey],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
           ),
         ],
+      ),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: Colors.white,
+          radius: 25,
+          child: Text(
+            date,
+            style: const TextStyle(
+              color: Colors.lightBlueAccent,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+        ),
+        title: Text(
+          name,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        subtitle: Text(
+          day,
+          style: const TextStyle(color: Colors.white70),
+        ),
+        trailing: const Icon(Icons.celebration, color: Colors.white),
       ),
     );
   }

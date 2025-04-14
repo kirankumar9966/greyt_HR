@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 
+import '../../profile/models/ProfileModel.dart';
+
 class EngageController extends GetxController {
   //TODO: Implement EngageController
 

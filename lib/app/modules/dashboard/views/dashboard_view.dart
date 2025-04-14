@@ -1,14 +1,19 @@
+import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:greyt_hr/app/modules/footer/views/footer_view.dart';
 import 'package:greyt_hr/app/modules/header/views/header_view.dart';
+import 'package:greyt_hr/app/modules/holidayCalender/controllers/holiday_calender_controller.dart';
 import 'package:greyt_hr/app/modules/holidayCalender/views/holiday_calender_view.dart';
 import 'package:greyt_hr/app/modules/profile/views/profile_view.dart';
 import 'package:greyt_hr/app/modules/settings/views/settings_view.dart';
 import 'package:greyt_hr/app/modules/updates/views/updates_view.dart';
 import 'package:intl/intl.dart';
+import '../../../routes/app_pages.dart';
+import '../../../services/auth_service.dart';
 import '../../login/controllers/login_controller.dart';
+import '../../profile/controllers/profile_controller.dart';
 import '../controllers/dashboard_controller.dart';
 
 class DashboardView extends GetView<DashboardController> {
@@ -16,6 +21,9 @@ class DashboardView extends GetView<DashboardController> {
 
   @override
   Widget build(BuildContext context) {
+    final profileController = Get.put(ProfileController());
+    final DashboardController controller = Get.put(DashboardController());
+    // A helper function to fetch employee details
 
     return Scaffold(
       appBar: const HeaderView(),
@@ -38,7 +46,8 @@ class DashboardView extends GetView<DashboardController> {
                     child: Container(
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Color(0xFF607D8B), // Background color for the circle
+                        color: Color(
+                            0xFF607D8B), // Background color for the circle
                       ),
                       padding: const EdgeInsets.all(5), // Space around the icon
                       child: const Icon(
@@ -57,29 +66,74 @@ class DashboardView extends GetView<DashboardController> {
 
               Row(
                 children: [
-                  CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Color(0xFF607D8B),
-                    child: Text(
-                      'OK', // Example initials
-                      style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text(
-                        'Obula Kumar',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        'obula@example.com',
-                        style: TextStyle(fontSize: 14, color: Colors.grey),
-                      ),
-                    ],
-                  ),
+                  Obx(() {
+                    final employee = profileController.employee.value;
+
+                    if (profileController.isLoading.value) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    if (employee == null) {
+                      return const Text("Failed to load profile");
+                    }
+
+                    // Dynamically generate initials
+                    final initials =
+                        "${employee.firstName.isNotEmpty ? employee.firstName[0] : ''}"
+                        "${employee.lastName.isNotEmpty ? employee.lastName[0] : ''}";
+                    final hasImage = employee.image.isNotEmpty;
+                    return Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 28,
+                          backgroundColor: Colors.white,
+                          child: Builder(
+                            builder: (context) {
+                              try {
+                                if (hasImage) {
+                                  final imageBytes = base64Decode(employee.image);
+                                  return CircleAvatar(
+                                    radius: 38,
+                                    backgroundImage: MemoryImage(imageBytes),
+                                  );
+                                } else {
+                                  throw Exception("No image found");
+                                }
+                              } catch (e) {
+                                // If decoding fails or image is broken
+                                final initials = "${employee.firstName[0]}${employee.lastName[0]}";
+                                return Text(
+                                  initials.toUpperCase(),
+                                  style: const TextStyle(
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF607D8B),
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${employee.firstName} ${employee.lastName}',
+                              style: const TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              employee.email,
+                              style: const TextStyle(
+                                  fontSize: 10, color: Colors.grey),
+                            ),
+                          ],
+                        ),
+                      ],
+                    );
+                  })
                 ],
               ),
               const SizedBox(height: 24),
@@ -92,7 +146,10 @@ class DashboardView extends GetView<DashboardController> {
                     padding: EdgeInsets.symmetric(horizontal: 8.0),
                     child: Text(
                       'Menu',
-                      style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold),
                     ),
                   ),
                   Expanded(child: Divider(thickness: 1)),
@@ -107,9 +164,10 @@ class DashboardView extends GetView<DashboardController> {
                   'Profile',
                   style: TextStyle(fontSize: 16),
                 ),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                trailing: const Icon(Icons.arrow_forward_ios,
+                    size: 16, color: Colors.grey),
                 onTap: () {
-                  Get.to(()=> ProfileView());
+                  Get.to(() => ProfileView());
                 },
               ),
 
@@ -119,9 +177,10 @@ class DashboardView extends GetView<DashboardController> {
                   'Settings',
                   style: TextStyle(fontSize: 16),
                 ),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                trailing: const Icon(Icons.arrow_forward_ios,
+                    size: 16, color: Colors.grey),
                 onTap: () {
-                Get.to(() => SettingsView());
+                  Get.to(() => SettingsView());
                 },
               ),
 
@@ -131,42 +190,47 @@ class DashboardView extends GetView<DashboardController> {
                   'Check for Updates',
                   style: TextStyle(fontSize: 16),
                 ),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                trailing: const Icon(Icons.arrow_forward_ios,
+                    size: 16, color: Colors.grey),
                 onTap: () {
                   Get.to(() => UpdatesView());
                 },
               ),
 
               ListTile(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-                tileColor: Colors.red.shade50,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                leading: const Icon(Icons.logout, color: Colors.red, size: 28),
-                title: const Text(
-                  'Logout',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
-                ),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.red),
+                  contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 4.0),
+                  tileColor: Colors.red.shade50,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  leading:
+                      const Icon(Icons.logout, color: Colors.red, size: 28),
+                  title: const Text(
+                    'Logout',
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red),
+                  ),
+                  trailing: const Icon(Icons.arrow_forward_ios,
+                      size: 16, color: Colors.red),
                   onTap: () async {
                     final confirmed = await Get.dialog<bool>(
                       AlertDialog(
                         title: const Text("Confirm Logout"),
-                        content: const Text("Are you sure you want to log out?"),
+                        content:
+                            const Text("Are you sure you want to log out?"),
                         actions: [
-                          TextButton(onPressed: () => Get.back(result: false), child: const Text("Cancel")),
+                          TextButton(
+                              onPressed: () => Get.back(result: false),
+                              child: const Text("Cancel")),
                           ElevatedButton(
                             onPressed: () async {
-                              // Close the dialog first
-                              Get.back();
-
-                              // Then logout (after dialog is dismissed)
-                              await Get.find<LoginController>().logout();
+                              await AuthService.logout();
                             },
                             child: const Text("Logout"),
                           ),
-
                         ],
                       ),
                     );
@@ -174,9 +238,7 @@ class DashboardView extends GetView<DashboardController> {
                     if (confirmed == true) {
                       await Get.find<LoginController>().logout();
                     }
-                  }
-
-              ),
+                  }),
 
               // Spacer and Footer
               const Spacer(),
@@ -191,7 +253,10 @@ class DashboardView extends GetView<DashboardController> {
                   ),
                   Text(
                     '1.0.0',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey),
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey),
                   ),
                 ],
               ),
@@ -199,49 +264,68 @@ class DashboardView extends GetView<DashboardController> {
           ),
         ),
       ),
-
-
-
       body: Container(
-        decoration: BoxDecoration(
-          color: Colors.white
-        ),
+        decoration: BoxDecoration(color: Colors.white),
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
               children: [
-
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Text.rich(
-                      TextSpan(
+                    Obx(() {
+                      final employee = profileController.employee.value;
+
+
+                      if (employee == null) {
+                        return const Text("Failed to load profile");
+                      }
+
+                      // Dynamically generate initials
+                      final initials =
+                          "${employee.firstName.isNotEmpty ? employee.firstName[0] : ''}"
+                          "${employee.lastName.isNotEmpty ? employee.lastName[0] : ''}";
+
+                      return Row(
                         children: [
-                          TextSpan(
-                            text: 'Hello', // Your main text
-                            style: const TextStyle(fontSize: 25, fontWeight: FontWeight.w500,color: Colors.grey),
-                          ),
-                          TextSpan(
-                            text: ' Obula ', // Your main text
-                            style: const TextStyle(fontSize: 25, fontWeight: FontWeight.w500),
-                          ),
-                          WidgetSpan(
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 8.0), // Space between text and emoji
-                              child: Text(
-                                '👋', // Waving emoji
-                                style: const TextStyle(fontSize: 25),
+                          const SizedBox(width: 16),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text.rich(
+                                TextSpan(
+                                  children: [
+                                    const TextSpan(
+                                      text: 'Hello ',
+                                      style: TextStyle(
+                                        fontSize: 25,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          ' ${employee.lastName} ${employee.firstName}',
+                                      style: const TextStyle(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
+                              const SizedBox(height: 4),
+                              // You can add more dynamic content here if needed
+                            ],
                           ),
                         ],
-                      ),
-                    ),
+                      );
+                    }),
                   ],
                 ),
-
-                const SizedBox(height: 20,),
+                const SizedBox(
+                  height: 20,
+                ),
                 Container(
                   height: 250, // Adjusted height for the container
                   child: Stack(
@@ -253,7 +337,8 @@ class DashboardView extends GetView<DashboardController> {
                           height: 100, // Image height
                           decoration: BoxDecoration(
                             image: DecorationImage(
-                              image: AssetImage(_getImageBasedOnTime()), // Conditionally set the image
+                              image: AssetImage(
+                                  _getImageBasedOnTime()), // Conditionally set the image
                               fit: BoxFit.cover,
                             ),
                             borderRadius: const BorderRadius.only(
@@ -282,75 +367,90 @@ class DashboardView extends GetView<DashboardController> {
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(16),
                               child: BackdropFilter(
-                                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                                filter:
+                                    ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                                 child: Container(
                                   padding: const EdgeInsets.all(16),
                                   color: Colors.white.withOpacity(0.2),
                                   child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: [
-                                      // Circle Clock
+                                      // Clock
                                       Container(
                                         height: 90,
                                         width: 90,
                                         decoration: BoxDecoration(
                                           gradient: const LinearGradient(
-                                            colors: [Colors.grey, Colors.blueGrey],
+                                            colors: [
+                                              Colors.grey,
+                                              Colors.blueGrey
+                                            ],
                                             begin: Alignment.topLeft,
                                             end: Alignment.bottomRight,
                                           ),
                                           shape: BoxShape.circle,
                                           border: Border.all(
-                                            color: Colors.black.withOpacity(0.5),
+                                            color:
+                                                Colors.black.withOpacity(0.5),
                                             width: 1,
                                           ),
                                         ),
                                         child: Center(
                                           child: Obx(() => Text(
-                                            controller.currentTime.value,
-                                            textAlign: TextAlign.center,
-                                            style: const TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.white,
-                                            ),
-                                          )),
+                                                controller.currentTime.value,
+                                                textAlign: TextAlign.center,
+                                                style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Colors.white,
+                                                ),
+                                              )),
                                         ),
                                       ),
-
                                       const SizedBox(width: 16),
-
                                       // Info + Button
                                       Expanded(
                                         child: Column(
-                                          mainAxisSize: MainAxisSize.min, // 👈 Prevents overflow
-                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
                                           children: [
-                                            Text(
-                                              "${DateFormat('EEEE').format(DateTime.now())} | 10:00 AM - 07:00 PM",
-                                              style: const TextStyle(
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
+                                            // ✅ Dynamic Shift Time
+                                            Obx(() => Text(
+                                                  "${DateFormat('EEEE').format(DateTime.now())} | ${controller.shiftTime.value}",
+                                                  style: const TextStyle(
+                                                    fontSize: 15,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                )),
                                             const SizedBox(height: 6),
                                             Obx(() => Text(
-                                              controller.currentDate.value,
-                                              style: const TextStyle(
-                                                fontSize: 13,
-                                                color: Colors.purple,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            )),
+                                                  controller.currentDate.value,
+                                                  style: const TextStyle(
+                                                    fontSize: 13,
+                                                    color: Colors.purple,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                )),
                                             const SizedBox(height: 4),
+
+// ✅ Correct Last Swipe Display
                                             Obx(() {
-                                              final swipeTime = controller.swipeTime.value;
-                                              final isSignedIn = controller.isSignedIn.value;
+                                              final empId =
+                                                  AuthService.getEmpId();
+                                              final displayedSwipeTime =
+                                                  controller.swipeTime.value;
+                                              final isSignedIn =
+                                                  controller.isSignedIn.value;
+
+                                              print(
+                                                  "🔹 Verifying Logged-in emp_id: $empId, Swipe: $displayedSwipeTime");
 
                                               return Text(
-                                                swipeTime.isNotEmpty
-                                                    ? "Last Swipe: $swipeTime (${isSignedIn ? "IN" : "OUT"})"
-                                                    : "",
+                                                displayedSwipeTime.isNotEmpty
+                                                    ? "Last Swipe: $displayedSwipeTime (${isSignedIn ? "IN" : "OUT"})"
+                                                    : "No swipe record found",
                                                 style: const TextStyle(
                                                   fontSize: 12,
                                                   color: Colors.grey,
@@ -358,31 +458,56 @@ class DashboardView extends GetView<DashboardController> {
                                                 ),
                                               );
                                             }),
+
                                             const SizedBox(height: 10),
+
+// ✅ Dynamic Button
                                             Obx(() => ElevatedButton(
-                                              onPressed: () async {
-                                                await controller.performSwipe();
-                                              },
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: controller.isSignedIn.value
-                                                    ? Colors.blue
-                                                    : const Color(0xFF607D8B),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(20),
-                                                ),
-                                                padding: const EdgeInsets.symmetric(
-                                                    horizontal: 20, vertical: 10),
-                                              ),
-                                              child: Text(
-                                                controller.isSignedIn.value
-                                                    ? 'Sign Out'
-                                                    : 'Sign In',
-                                                style: const TextStyle(
-                                                  fontSize: 15,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                            )),
+                                                  onPressed: controller
+                                                          .isSwiping.value
+                                                      ? null
+                                                      : () async {
+                                                    final swipeDirection = controller.isSignedIn.value ? 'OUT' : 'IN';
+                                                    controller.performSwipe(swipeDirection);
+                                                        },
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                    backgroundColor: controller
+                                                            .isSignedIn.value
+                                                        ? Colors.blue
+                                                        : const Color(
+                                                            0xFF607D8B),
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              20),
+                                                    ),
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal: 20,
+                                                        vertical: 10),
+                                                  ),
+                                                  child: controller
+                                                          .isSwiping.value
+                                                      ? const CircularProgressIndicator(
+                                                          valueColor:
+                                                              AlwaysStoppedAnimation<
+                                                                      Color>(
+                                                                  Colors.white),
+                                                        )
+                                                      : Text(
+                                                          controller.isSignedIn
+                                                                  .value
+                                                              ? 'Sign Out'
+                                                              : 'Sign In',
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 15,
+                                                                  color: Colors
+                                                                      .white),
+                                                        ),
+                                                )),
                                           ],
                                         ),
                                       ),
@@ -394,19 +519,18 @@ class DashboardView extends GetView<DashboardController> {
                           ),
                         ),
                       ),
-
                     ],
                   ),
                 ),
-
-                const SizedBox(height: 10,),
-
+                const SizedBox(
+                  height: 10,
+                ),
                 Align(
                   alignment: Alignment.bottomCenter,
-
                   child: Container(
                     height: 320, // Adjusted height to accommodate all content
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
@@ -414,10 +538,13 @@ class DashboardView extends GetView<DashboardController> {
                           Color(0xFF8A2BE2),
                         ],
 
-                        begin: Alignment.topLeft, // Gradient starts from top left
-                        end: Alignment.bottomRight, // Gradient ends at bottom right
+                        begin:
+                            Alignment.topLeft, // Gradient starts from top left
+                        end: Alignment
+                            .bottomRight, // Gradient ends at bottom right
                       ),
-                      borderRadius: BorderRadius.circular(16), // Rounded corners
+                      borderRadius:
+                          BorderRadius.circular(16), // Rounded corners
                       border: Border.all(
                         color: Colors.black.withOpacity(0.2),
                         width: 1,
@@ -439,13 +566,20 @@ class DashboardView extends GetView<DashboardController> {
                                 color: Colors.white,
                               ),
                             ),
-                            Icon(
-                              Icons.arrow_forward,
-                              color: Colors.white,
-                              size: 30,
+                            GestureDetector(
+                              onTap: () {
+                                Get.toNamed(Routes
+                                    .ENGAGE); // Ensure this route is correctly set up
+                              },
+                              child: Icon(
+                                Icons.arrow_forward,
+                                color: Colors.white,
+                                size: 30,
+                              ),
                             ),
                           ],
                         ),
+
                         const SizedBox(height: 16),
 
                         // Content
@@ -504,16 +638,15 @@ class DashboardView extends GetView<DashboardController> {
                     ),
                   ),
                 ),
-
-
-
-                const SizedBox(height: 30,),
-
+                const SizedBox(
+                  height: 30,
+                ),
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: Container(
                     height: 400, // Adjusted height to accommodate all content
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
@@ -521,10 +654,13 @@ class DashboardView extends GetView<DashboardController> {
                           Color(0xFF90CAF9), // Light blue
                         ],
 
-                        begin: Alignment.topLeft, // Gradient starts from top left
-                        end: Alignment.bottomRight, // Gradient ends at bottom right
+                        begin:
+                            Alignment.topLeft, // Gradient starts from top left
+                        end: Alignment
+                            .bottomRight, // Gradient ends at bottom right
                       ),
-                      borderRadius: BorderRadius.circular(16), // Rounded corners
+                      borderRadius:
+                          BorderRadius.circular(16), // Rounded corners
                       border: Border.all(
                         color: Colors.black.withOpacity(0.2),
                         width: 1,
@@ -558,12 +694,14 @@ class DashboardView extends GetView<DashboardController> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Text('Jan 2025', style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight:FontWeight.w400,
-
-                            ),)
+                            Text(
+                              'Jan 2025',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            )
                           ],
                         ),
                         const SizedBox(height: 16),
@@ -571,7 +709,8 @@ class DashboardView extends GetView<DashboardController> {
                         Container(
                           height: 200, // Adjust height for content
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.2), // Blurred effect
+                            color:
+                                Colors.black.withOpacity(0.2), // Blurred effect
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
@@ -600,18 +739,21 @@ class DashboardView extends GetView<DashboardController> {
                                     ),
                                     const SizedBox(height: 8),
                                     Obx(() => Row(
-                                      children: [
-                                        const Icon(Icons.currency_rupee, color: Colors.white, size: 16),
-                                        Text(
-                                          controller.showNetPay.value ? controller.netPay : "*****",
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ],
-                                    )),
+                                          children: [
+                                            const Icon(Icons.currency_rupee,
+                                                color: Colors.white, size: 16),
+                                            Text(
+                                              controller.showNetPay.value
+                                                  ? controller.netPay
+                                                  : "*****",
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ],
+                                        )),
                                   ],
                                 ),
                               ),
@@ -633,18 +775,21 @@ class DashboardView extends GetView<DashboardController> {
                                     ),
                                     const SizedBox(height: 8),
                                     Obx(() => Row(
-                                      children: [
-                                        const Icon(Icons.currency_rupee, color: Colors.white, size: 16),
-                                        Text(
-                                          controller.showGrossPay.value ? controller.grossPay : "*****",
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ],
-                                    )),
+                                          children: [
+                                            const Icon(Icons.currency_rupee,
+                                                color: Colors.white, size: 16),
+                                            Text(
+                                              controller.showGrossPay.value
+                                                  ? controller.grossPay
+                                                  : "*****",
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ],
+                                        )),
                                   ],
                                 ),
                               ),
@@ -666,19 +811,22 @@ class DashboardView extends GetView<DashboardController> {
                                     ),
                                     const SizedBox(height: 8),
                                     Obx(() => Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        const Icon(Icons.currency_rupee, color: Colors.white, size: 16),
-                                        Text(
-                                          controller.showDeductions.value ? controller.deductions : "*****",
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ],
-                                    )),
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Icon(Icons.currency_rupee,
+                                                color: Colors.white, size: 16),
+                                            Text(
+                                              controller.showDeductions.value
+                                                  ? controller.deductions
+                                                  : "*****",
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ],
+                                        )),
                                   ],
                                 ),
                               ),
@@ -708,7 +856,6 @@ class DashboardView extends GetView<DashboardController> {
                               ),
                             ],
                           ),
-
                         ),
 
                         const SizedBox(height: 16),
@@ -720,39 +867,41 @@ class DashboardView extends GetView<DashboardController> {
                             const Text(
                               "Show Salary",
                               style: TextStyle(
-                                fontSize: 20,
-                                color: Colors.white,
-                                fontWeight: FontWeight.w500
-                              ),
+                                  fontSize: 20,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w500),
                             ),
                             const SizedBox(width: 8),
                             Obx(() => Switch(
-                              value: controller.showNetPay.value, // Bind to the Net Pay toggle
-                              onChanged: (bool value) {
-                                // Toggle all fields based on switch value
-                                controller.showNetPay.value = value;
-                                controller.showGrossPay.value = value;
-                                controller.showDeductions.value = value;
-                              },
-                              activeColor: Colors.white,
-                              activeTrackColor: Colors.blue,
-                              inactiveThumbColor: Colors.white,
-                              inactiveTrackColor: Colors.grey.withOpacity(1),
-                            )),
+                                  value: controller.showNetPay
+                                      .value, // Bind to the Net Pay toggle
+                                  onChanged: (bool value) {
+                                    // Toggle all fields based on switch value
+                                    controller.showNetPay.value = value;
+                                    controller.showGrossPay.value = value;
+                                    controller.showDeductions.value = value;
+                                  },
+                                  activeColor: Colors.white,
+                                  activeTrackColor: Colors.blue,
+                                  inactiveThumbColor: Colors.white,
+                                  inactiveTrackColor:
+                                      Colors.grey.withOpacity(1),
+                                )),
                           ],
                         ),
                       ],
                     ),
                   ),
                 ),
-
-                const SizedBox(height: 30,),
-
+                const SizedBox(
+                  height: 30,
+                ),
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: Container(
                     height: 320, // Adjusted height to accommodate all content
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
@@ -775,8 +924,6 @@ class DashboardView extends GetView<DashboardController> {
                         ),
                       ],
                     ),
-
-
 
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -813,7 +960,6 @@ class DashboardView extends GetView<DashboardController> {
                               color: Colors.white,
                             ),
                             const SizedBox(height: 12),
-
                             const Text(
                               "Your IT declarations is now considered \n for May 2024.",
                               textAlign: TextAlign.center,
@@ -851,11 +997,10 @@ class DashboardView extends GetView<DashboardController> {
                     ),
                   ),
                 ),
-
-                const SizedBox(height: 30,),
-
+                const SizedBox(
+                  height: 30,
+                ),
                 Container(
-
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -885,8 +1030,8 @@ class DashboardView extends GetView<DashboardController> {
                             ),
                           ),
                           GestureDetector(
-                            onTap: (){
-                              Get.to(()=>HolidayCalenderView());
+                            onTap: () {
+                              Get.to(() => HolidayCalenderView());
                             },
                             child: Icon(
                               Icons.arrow_forward,
@@ -898,60 +1043,50 @@ class DashboardView extends GetView<DashboardController> {
                       ),
                       const SizedBox(height: 18),
                       // Cards Grid
-                      Wrap(
-                        spacing: 16,
-                        runSpacing: 16,
-                        children: [
-                          // Card 1
-                          _modernHolidayCard(
-                            icon: Icons.celebration,
-                            date: "14 Mar",
-                            holiday: "Holi",
-                            day: "Friday",
-                            gradient: [Colors.lightBlueAccent, Colors.grey],
-                          ),
-                          // Card 2
-                          _modernHolidayCard(
-                            icon: Icons.nature_people,
-                            date: "01 May",
-                            holiday: "Labour Day",
-                            day: "Monday",
-                            gradient: [Colors.lightBlueAccent, Colors.grey],
-                          ),
-                          // Card 3
-                          _modernHolidayCard(
-                            icon: Icons.flag,
-                            date: "15 Aug",
-                            holiday: "Independence Day",
-                            day: "Tuesday",
-                            gradient: [Colors.lightBlueAccent, Colors.grey],
-                          ),
-                          // Card 4
-                          _modernHolidayCard(
-                            icon: Icons.directions_boat,
-                            date: "25 Dec",
-                            holiday: "Christmas",
-                            day: "Monday",
-                            gradient: [Colors.lightBlueAccent, Colors.grey],
-                          ),
-                        ],
-                      ),
+                      Obx(() {
+                        if (controller.isHolidayLoading.value) {
+                          return const CircularProgressIndicator();
+                        }
+
+                        if (controller.upcomingHolidays.isEmpty) {
+                          return const Text("No upcoming holidays");
+                        }
+
+                        return Wrap(
+                          spacing: 16,
+                          runSpacing: 16,
+                          children: controller.upcomingHolidays.map((holiday) {
+                            final parsedDate = DateTime.tryParse(holiday.date);
+                            final formattedDate = parsedDate != null
+                                ? DateFormat("dd MMM").format(parsedDate)
+                                : holiday.date;
+
+                            return _modernHolidayCard(
+                              icon: _getHolidayIcon(
+                                  holiday.festival.toLowerCase()),
+                              date: formattedDate,
+                              holiday: holiday.festival,
+                              day: holiday.day,
+                              gradient: [Colors.lightBlueAccent, Colors.grey],
+                            );
+                          }).toList(),
+                        );
+                      })
                     ],
                   ),
                 ),
-                const SizedBox(height: 50,),
+                const SizedBox(
+                  height: 50,
+                ),
               ],
             ),
           ),
         ),
-
       ),
       bottomNavigationBar: FooterView(),
     );
   }
 }
-
-
 
 // Function to Create a Holiday Card with Gradient Design
 Widget _modernHolidayCard({
@@ -962,10 +1097,13 @@ Widget _modernHolidayCard({
   required List<Color> gradient,
 }) {
   return Container(
-    width: (MediaQueryData.fromWindow(WidgetsBinding.instance.window).size.width / 2) -
-        32 - // Account for padding
-        8, // Spacing
+    width:
+        (MediaQueryData.fromWindow(WidgetsBinding.instance.window).size.width /
+                2) -
+            32 - // Account for padding
+            8, // Spacing
     height: 245, // Fixed height for the card
+
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
       gradient: LinearGradient(
@@ -1042,4 +1180,16 @@ String _getImageBasedOnTime() {
     // Night (8:00 PM - 4:59 AM)
     return 'assets/images/Night moon.avif';
   }
+}
+
+IconData _getHolidayIcon(String name) {
+  if (name.contains('holi')) return Icons.celebration;
+  if (name.contains('labour') || name.contains('may'))
+    return Icons.nature_people;
+  if (name.contains('independence')) return Icons.flag;
+  if (name.contains('christmas')) return Icons.directions_boat;
+  if (name.contains('ganesh')) return Icons.festival;
+  if (name.contains('deepavali') || name.contains('diwali'))
+    return Icons.light_mode;
+  return Icons.calendar_today;
 }

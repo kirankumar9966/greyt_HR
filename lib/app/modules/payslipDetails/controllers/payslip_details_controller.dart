@@ -7,7 +7,7 @@ class PayslipDetailsController extends GetxController {
   var isDeductionsExpanded = false.obs;
 
   var selectedYear = "2025 - 2026".obs;
-  var selectedMonth = "Feb".obs;
+  var selectedMonth = "".obs;
   var months = <String>[].obs;
 
   final Map<String, String> employeeDetails = {
@@ -30,15 +30,14 @@ class PayslipDetailsController extends GetxController {
   List<String> years = ["2023 - 2024", "2024 - 2025", "2025 - 2026"];
 
   void _setPreviousMonth() {
-    String currentMonth = DateFormat('MMM').format(DateTime.now()); // Current month in "Jan" format
-    int currentIndex = months.indexOf(currentMonth);
-
-    if (currentIndex > 0) {
-      selectedMonth.value = months[currentIndex - 1]; // Highlight previous month
+    String currentMonth = DateFormat('MMM').format(DateTime.now()); // e.g., "Apr"
+    if (months.contains(currentMonth)) {
+      selectedMonth.value = currentMonth; // ✅ Set current month dynamically
     } else {
-      selectedMonth.value = "Dec"; // If January, set December by default
+      selectedMonth.value = "Jan"; // Default fallback
     }
   }
+
 
   void updateYear(String year) {
     selectedYear.value = year;
@@ -57,12 +56,12 @@ class PayslipDetailsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _setPreviousMonth();
     months.assignAll(["Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct"]);
-
+    _setPreviousMonth(); // ✅ Call AFTER months are assigned
   }
+
   void updateMonth(String month) {
-    selectedMonth.value = month; // ✅ Correctly updating the observable value
+    selectedMonth.value = month; // ✅ Updates selected month dynamically
   }
   @override
   void onReady() {
