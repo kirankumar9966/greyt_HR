@@ -34,6 +34,7 @@ import 'app/routes/app_pages.dart';
 
 void main() async {
   await GetStorage.init();
+
   Get.put(LoginController());
   Get.put(DashboardController());
   Get.put(HeaderController());

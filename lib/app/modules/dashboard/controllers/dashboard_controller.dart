@@ -1,28 +1,36 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:ui';
 
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:greyt_hr/app/services/dashboard_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
-import '../../../models/HolidayCalender.dart';
+
 import '../../../services/auth_service.dart';
-import '../../profile/controllers/profile_controller.dart';
+
+import '../../../services/dashboard_service.dart';
 import '../../utils/helpers.dart';
+import '../models/HolidayCalender.dart';
+
 
 class DashboardController extends GetxController {
 
   var isSignedIn = false.obs;
   var swipeTime = ''.obs;
+  // Reset old data
+  var swipeStatus = ''.obs;
+
+  var shiftTime = ''.obs;
+
   var currentTime = ''.obs;
   var currentDate = ''.obs;
   var firstName = ''.obs;
   var lastName = ''.obs;
   var upcomingHolidays = <Holiday>[].obs;
   var isHolidayLoading = false.obs;
+  var isSwiping = false.obs;
+ // Add this
 
   // Sample salary values
   var  netPay = ''.obs;
@@ -36,6 +44,8 @@ class DashboardController extends GetxController {
   var isLoading = true.obs;
   var errorMessage = ''.obs;
 
+  RxList<Holiday> allHolidays = <Holiday>[].obs;
+  RxList<Holiday> filteredHolidays = <Holiday>[].obs;
   var userInitials = 'OK'.obs; // Replace with dynamic user data
 
   // Sidebar open/close state
@@ -62,7 +72,7 @@ class DashboardController extends GetxController {
 
   Future<void> fetchSalaryDetails() async{
     isLoading.value = true;
-    final response = await DashboardService.payslip();
+    final response = await DashboardService.latestPayslip();
 
 
     if (response['status'] == 'success') {
@@ -109,12 +119,66 @@ class DashboardController extends GetxController {
   void onInit() async {
     super.onInit();
     await fetchSalaryDetails();
+    swipeTime.value = '';
+    isSignedIn.value = false;
+    fetchHolidays();
+      // Ensure token is set before calling this
+    fetchSwipeStatus();
     _updateTime(); // Start updating time
     _startClock();
-    if (AuthService.getToken() != null && AuthService.getEmpId() != null) {
-      performSwipe();
+
+
+
+
+
+  }
+
+
+
+
+  Future<void> fetchHolidays() async {
+    final token = AuthService.getToken();
+    final empId = AuthService.getEmpId();
+
+    if (token == null || empId == null) {
+      Get.snackbar("Error", "Login token or empId missing");
+      return;
     }
-    fetchUpcomingHolidays();
+
+    try {
+      isHolidayLoading.value = true;
+
+      final response = await http.post(
+        Uri.parse("https://s6.payg-india.com/api/holidays"),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final model = HolidayCalendarModel.fromJson(data);
+        allHolidays.assignAll(model.data.holidays);
+
+        // ✅ Filter only upcoming holidays from today
+        final today = DateTime.now();
+        final upcoming = model.data.holidays.where((holiday) {
+          final date = DateTime.tryParse(holiday.date);
+          return date != null && !date.isBefore(today);
+        }).toList();
+
+        // ✅ Sort by date and take the latest 4
+        upcoming.sort((a, b) => a.date.compareTo(b.date));
+        upcomingHolidays.assignAll(upcoming.take(4));
+      } else {
+        Get.snackbar("Error", "Failed to load holidays");
+      }
+    } catch (e) {
+      Get.snackbar("Error", "Something went wrong");
+    } finally {
+      isHolidayLoading.value = false;
+    }
   }
 
   void _updateTime() {
@@ -146,37 +210,10 @@ class DashboardController extends GetxController {
       return true;
     });
   }
-  Future<void> fetchUpcomingHolidays() async {
-    try {
-      isHolidayLoading(true);
-      final response = await http.get(Uri.parse("https://s6.payg-india.com/api/holidays"));
 
-      if (response.statusCode == 200) {
-        final decoded = jsonDecode(response.body);
-        final model = HolidayCalendarModel.fromJson(decoded);
 
-        final today = DateTime.now();
 
-        final filtered = model.data.holidays.where((h) {
-          final holidayDate = DateTime.parse(h.date);
-          return holidayDate.isAfter(today) || holidayDate.isAtSameMomentAs(today);
-        }).take(4).toList();
 
-        upcomingHolidays.assignAll(filtered);
-      } else {
-        Future.delayed(Duration.zero, () {
-          Get.snackbar("Error", "Failed to fetch holidays");
-        });
-      }
-    } catch (e) {
-      Future.delayed(Duration.zero, () {
-        Get.snackbar("Error", "Something went wrong");
-      });
-      print("Holiday fetch error: $e");
-    } finally {
-      isHolidayLoading(false);
-    }
-  }
 
 
 
@@ -189,67 +226,92 @@ class DashboardController extends GetxController {
       '${time.day.toString().padLeft(2, '0')}-${time.month.toString().padLeft(
           2, '0')}-${time.year}';
 
-  Future<void> performSwipe() async {
+
+  void performSwipe(String inOrOut) async {
+    await AuthService.performSwipe(inOrOut);
+  }
+
+
+  void updateSwipeUI(bool signedIn, String time, String shift) {
+    isSignedIn.value = signedIn;
+    swipeTime.value = time;
+    shiftTime.value = shift;
+  }
+
+
+  Future<void> fetchSwipeStatus() async {
+    final token = AuthService.getToken();
+    final empId = AuthService.getEmpId();
+
+    if (token == null || empId == null) {
+      Get.snackbar("Error", "Missing credentials");
+      return;
+    }
+
+    final url = Uri.parse("https://s6.payg-india.com/api/swipe-status");
+
     try {
-      final token = AuthService.getToken();
-      final empId = AuthService.getEmpId();
-
-
-
-      if (token == null || empId == null) {
-        Get.snackbar("Error", "Missing token or emp_id");
-        return;
-      }
-
-      final direction = isSignedIn.value ? "OUT" : "IN";
-
-
       final response = await http.post(
-        Uri.parse("https://s6.payg-india.com/api/swipe"),
+        url,
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
-        body: jsonEncode({
-          "emp_id": empId,
-          "in_or_out": direction,
-        }),
+        body: jsonEncode({"emp_id": empId}),
       );
 
-
-
       final body = jsonDecode(response.body);
+      print("📩 Swipe Status Response: ${response.body}");
 
       if (response.statusCode == 200 && body['status'] == 'success') {
         final data = body['data'];
-
-        swipeTime.value = data['swipe_time'] ?? '';
-        isSignedIn.value = data['in_or_out'] == "IN";
-
-        showSuccessFlash(
-            data['in_or_out'] == "IN"
-                ? "Sign In successful"
-                : "Sign Out successful"
-        );
-        // ✅ Get full name from API
-        final String? firstName = data['first_name'];
-        final String? lastName = data['last_name'];
-
-        if (firstName != null && lastName != null) {
-          print("🧑 Hello, $firstName $lastName");
-          // Or store it if you want to show later:
-          // fullName.value = "$firstName $lastName";
-        }
-
+        isSignedIn.value = data['swipe_status'] == 'IN';
+        swipeTime.value = data['last_swipe_time'] ?? '';
       } else {
-
-        Get.snackbar("Failed", body["message"] ?? "Swipe failed");
+        Get.snackbar("Error", body["message"] ?? "Failed to fetch swipe status");
       }
     } catch (e) {
-
+      print("❌ Error fetching swipe status: $e");
       Get.snackbar("Error", "Something went wrong");
     }
   }
+
+
+
+// Function to refresh swipe data on user login
+  void refreshSwipeData() async {
+    final token = AuthService.getToken();
+    final empId = AuthService.getEmpId();
+
+    if (token == null || empId == null) {
+      return;
+    }
+
+    final response = await http.post(
+      Uri.parse("https://s6.payg-india.com/api/swipe"),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    final body = jsonDecode(response.body);
+    print("🔄 Refresh API Response: $body");
+
+    if (response.statusCode == 200 && body['status'] == 'success') {
+      final data = body['data'];
+
+      if (data['emp_id'].toString() == empId.toString()) {
+        swipeTime.value = data['swipe_time'] ?? '';
+        isSignedIn.value = data['in_or_out'] == "IN";
+        shiftTime.value = data['shift_time'] ?? '';
+
+        print("✅ Refreshed Data for emp_id: $empId");
+      }
+    }
+  }
+
+
 
 
 

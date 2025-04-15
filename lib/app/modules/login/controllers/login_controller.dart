@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../routes/app_pages.dart';
 import '../../../services/auth_service.dart';
+import '../../dashboard/controllers/dashboard_controller.dart';
 import '../../profile/controllers/profile_controller.dart';
 
 
@@ -33,8 +34,16 @@ class LoginController extends GetxController {
     if (Get.isRegistered<ProfileController>()) {
       Get.delete<ProfileController>();
     }
+    // Clean up previous session
+    if (Get.isRegistered<ProfileController>()) {
+      Get.delete<ProfileController>(force: true);
 
-    await AuthService.logout(); // clear old storage
+    }
+
+
+
+
+
 
     isLoading(true);
     final response = await AuthService.login(loginInput, password);
@@ -44,10 +53,14 @@ class LoginController extends GetxController {
     if (response["status"] == "success") {
       print("kiranlkumarr");
       // ✅ Add a slight delay to ensure token is written before proceeding
-      await Future.delayed(const Duration(milliseconds: 200));
 
       final token = AuthService.getToken();
-      if (token != null && token.isNotEmpty) {
+
+      if (token != null && token.isNotEmpty ) {
+        // ✅ Load fresh profile and swipes for the new user
+        await AuthService.fetchEmployeeDetails();
+        Get.put(DashboardController()); // Ensure fresh DashboardController
+
         Get.offAllNamed(Routes.DASHBOARD);
       } else {
         Future.delayed(Duration.zero, () {
@@ -62,6 +75,9 @@ class LoginController extends GetxController {
   }
 
   Future<void> logout() async {
-    await AuthService.logout();
+    await AuthService.logout(); // Clears token and session
+
+    Get.offAllNamed(Routes.LOGIN); // Redirect to login
   }
+
 }
