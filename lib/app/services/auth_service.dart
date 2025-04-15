@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:get_storage/get_storage.dart';
 import '../modules/dashboard/controllers/dashboard_controller.dart';
 import '../modules/dashboard/models/HolidayCalender.dart';
+import '../modules/payslipDetails/controllers/payslip_details_controller.dart';
 import '../modules/profile/controllers/profile_controller.dart';
 import '../modules/profile/models/ProfileModel.dart';
 import '../modules/utils/helpers.dart';
@@ -283,7 +284,10 @@ class AuthService {
       Get.delete<DashboardController>(force: true); // Optional: reset swipe UI too
       print("🗑️ Deleted DashboardController");
     }
-
+    if (Get.isRegistered<PayslipDetailsController>()) {
+      Get.delete<PayslipDetailsController>(force: true); // Optional: reset swipe UI too
+      print("🗑️ Deleted DashboardController");
+    }
     print("🧹 Cleared storage and controllers");
     Get.offAllNamed(Routes.LOGIN);
   }

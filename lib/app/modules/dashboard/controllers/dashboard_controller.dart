@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 
 import '../../../services/auth_service.dart';
 
+import '../../../services/dashboard_service.dart';
 import '../../utils/helpers.dart';
 import '../models/HolidayCalender.dart';
 
@@ -71,7 +72,7 @@ class DashboardController extends GetxController {
 
   Future<void> fetchSalaryDetails() async{
     isLoading.value = true;
-    final response = await DashboardService.payslip();
+    final response = await DashboardService.latestPayslip();
 
 
     if (response['status'] == 'success') {

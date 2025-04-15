@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -12,6 +13,7 @@ import 'package:intl/intl.dart';
 import '../../../routes/app_pages.dart';
 import '../../../services/auth_service.dart';
 import '../../login/controllers/login_controller.dart';
+import '../../payslips/views/payslips_view.dart';
 import '../../profile/controllers/profile_controller.dart';
 import '../controllers/dashboard_controller.dart';
 
@@ -683,11 +685,17 @@ class DashboardView extends GetView<DashboardController> {
                                 color: Colors.white,
                               ),
                             ),
-                            Icon(
-                              Icons.arrow_forward,
-                              color: Colors.white,
-                              size: 30,
-                            ),
+                            InkWell(
+                              onTap: () {
+                                Get.to(() => PayslipsView());
+                              },
+                              child: Icon(
+                                Icons.arrow_forward,
+                                color: Colors.white,
+                                size: 30,
+                              ),
+                            )
+
                           ],
                         ),
                         const SizedBox(height: 16),
