@@ -122,6 +122,7 @@ class DashboardController extends GetxController {
     swipeTime.value = '';
     isSignedIn.value = false;
     fetchHolidays();
+    loadProfile();
       // Ensure token is set before calling this
     fetchSwipeStatus();
     _updateTime(); // Start updating time
@@ -134,6 +135,19 @@ class DashboardController extends GetxController {
   }
 
 
+  void loadProfile() async {
+    final profile = await AuthService.fetchEmployeeDetails();
+
+    if (profile != null) {
+      final employee = profile.data.employee;
+      firstName.value = employee.firstName;
+      lastName.value = employee.lastName;
+      fetchUserInitials(employee.firstName, employee.lastName);
+      print("🎉 Profile Loaded: ${employee.firstName} ${employee.lastName}");
+    } else {
+      print("❌ Failed to load profile");
+    }
+  }
 
 
   Future<void> fetchHolidays() async {

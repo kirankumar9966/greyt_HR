@@ -47,7 +47,7 @@ class DashboardService {
   }
   static Future<Map<String, dynamic>> payslip({
     required String month,
-    required String year,
+
   }) async {
     final token = AuthService.getToken();
 
@@ -70,7 +70,7 @@ class DashboardService {
         },
         body: jsonEncode({
           'month': month,
-          'year': year,
+
         }),
       );
 

@@ -118,7 +118,7 @@ class AuthService {
       final token = getToken();
 
       if (token == null) {
-        print("\u{26A0}\u{FE0F} Token missing.");
+        print("⚠️ Token missing.");
         return null;
       }
 
@@ -136,16 +136,17 @@ class AuthService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        return ProfileModel.fromJson(data);
+        return ProfileModel.fromJson(data); // 🔥 Error is likely here
       } else {
-        print("\u{26A0}\u{FE0F} Failed to fetch profile: ${response.statusCode}");
+        print("⚠️ Failed to fetch profile: ${response.statusCode}");
         return null;
       }
     } catch (e) {
-      print("\u{274C} Error fetching profile: $e");
+      print("❌ Error fetching profile: $e");
       return null;
     }
   }
+
 
   static Future<void> performSwipe(String inOrOut) async {
     final token = getToken();

@@ -5,6 +5,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart'; // For asset image loading
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
@@ -62,7 +63,7 @@ class PayslipDetailsView extends GetView<PayslipDetailsController> {
                 // Payslip Title
                 pw.Center(
                   child: pw.Text(
-                    "Payslip for the month of February 2025",
+                  controller.getPayslipTitle(),
                     style: pw.TextStyle(
                         fontSize: 14, fontWeight: pw.FontWeight.bold),
                   ),
@@ -126,7 +127,7 @@ class PayslipDetailsView extends GetView<PayslipDetailsController> {
         .now()
         .millisecondsSinceEpoch
         .toString();
-    String fileName = "Payslip_Feb2025_$timestamp.pdf";
+    String fileName = controller.generatePayslipFileName();
 
     void _showDownloadMessage(String message) {
       Fluttertoast.showToast(
@@ -193,6 +194,7 @@ class PayslipDetailsView extends GetView<PayslipDetailsController> {
               cells[0],
               style: pw.TextStyle(
                 fontWeight: bold ? pw.FontWeight.bold : pw.FontWeight.normal,
+                fontSize: 10,
               ),
             ),
           ),
@@ -205,6 +207,7 @@ class PayslipDetailsView extends GetView<PayslipDetailsController> {
               cells[1],
               style: pw.TextStyle(
                 fontWeight: bold ? pw.FontWeight.bold : pw.FontWeight.normal,
+                fontSize: 10,
               ),
             ),
           ),
@@ -217,19 +220,16 @@ class PayslipDetailsView extends GetView<PayslipDetailsController> {
   pw.Widget _earningsRow(String label, String full,
       {String? actual, bool isHeader = false, bool isBold = false}) {
     final style = pw.TextStyle(
-      fontWeight: (isHeader || isBold) ? pw.FontWeight.bold : pw.FontWeight
-          .normal,
+      fontWeight: (isHeader || isBold) ? pw.FontWeight.bold : pw.FontWeight.normal,
       fontSize: 10,
     );
     return pw.Row(
       mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
       children: [
         pw.Expanded(flex: 2, child: pw.Text(label, style: style)),
-        pw.Expanded(
-            child: pw.Text(full, style: style, textAlign: pw.TextAlign.right)),
+        pw.Expanded(child: pw.Text(full, style: style, textAlign: pw.TextAlign.right)),
         if (actual != null)
-          pw.Expanded(child: pw.Text(
-              actual, style: style, textAlign: pw.TextAlign.right)),
+          pw.Expanded(child: pw.Text(actual, style: style, textAlign: pw.TextAlign.right)),
       ],
     );
   }
@@ -249,7 +249,6 @@ class PayslipDetailsView extends GetView<PayslipDetailsController> {
     );
   }
 
-
   pw.Widget _buildDetailsTable(PayslipDetailsController controller) {
     final details = controller.employeeDetails;
     final earnings = controller.salaryComponents['earnings'];
@@ -261,12 +260,12 @@ class PayslipDetailsView extends GetView<PayslipDetailsController> {
         ?.fold(0, (prev, element) => prev + (element ?? 0)) ?? 0;
 
     return pw.Container(
-      decoration: pw.BoxDecoration(border: pw.Border.all()), // Outer border
+      decoration: pw.BoxDecoration(border: pw.Border.all(width: 1, color: PdfColors.black)),
+      padding: pw.EdgeInsets.all(8),
       child: pw.Column(
         children: [
-          // Header Section
+          // Header Section (Personal Details)
           pw.Row(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
               // Left Side
               pw.Expanded(
@@ -278,15 +277,12 @@ class PayslipDetailsView extends GetView<PayslipDetailsController> {
                     _buildRow(["Designation:", details["Designation"] ?? ""]),
                     _buildRow(["Department:", details["Department"] ?? ""]),
                     _buildRow(["Location:", details["Location"] ?? ""]),
-                    _buildRow([
-                      "Effective Work Days:",
-                      details["Effective Work Days"] ?? ""
-                    ]),
+                    _buildRow(["Effective Work Days:", details["Effective Work Days"] ?? ""]),
                     _buildRow(["LOP:", details["LOP"] ?? ""]),
                   ],
                 ),
               ),
-              pw.Container(width: 1, height: 150, color: PdfColors.black),
+              pw.SizedBox(width: 1, height: 100, child: pw.Divider(color: PdfColors.black)),
               // Right Side
               pw.Expanded(
                 child: pw.Column(
@@ -294,10 +290,7 @@ class PayslipDetailsView extends GetView<PayslipDetailsController> {
                   children: [
                     _buildRow(["Employee No:", details["Employee No"] ?? ""]),
                     _buildRow(["Bank Name:", details["Bank Name"] ?? ""]),
-                    _buildRow([
-                      "Bank Account No:",
-                      details["Bank Account Number"] ?? ""
-                    ]),
+                    _buildRow(["Bank Account No:", details["Bank Account Number"] ?? ""]),
                     _buildRow(["PAN Number:", details["Pan Number"] ?? ""]),
                     _buildRow(["PF No:", details["PF No"] ?? ""]),
                     _buildRow(["PF UAN:", details["PF UAN"] ?? ""]),
@@ -308,106 +301,63 @@ class PayslipDetailsView extends GetView<PayslipDetailsController> {
           ),
 
           // Earnings and Deductions Section
-          pw.Container(
-            decoration: pw.BoxDecoration(border: pw.Border.all()),
-            child: pw.Row(
-              children: [
-                pw.Expanded(
-                  child: pw.Container(
-                    color: PdfColors.grey300,
-                    padding: const pw.EdgeInsets.all(5),
-                    child: pw.Row(
-                      children: [
-                        pw.Expanded(child: pw.Text("Earnings", textAlign: pw
-                            .TextAlign.left)),
-                        pw.Text("Full"),
-                        pw.SizedBox(width: 15),
-                        pw.Text("Actual"),
-                      ],
-                    ),
-                  ),
-                ),
-                pw.Expanded(
-                  child: pw.Container(
-                    color: PdfColors.grey300,
-                    padding: const pw.EdgeInsets.all(5),
-                    child: pw.Text(
-                        "Deductions", textAlign: pw.TextAlign.center),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Data Rows
+          pw.SizedBox(height: 10),
           pw.Row(
             children: [
-              // Earnings
               pw.Expanded(
-                flex: 2,
-                child: pw.Column(
-                  children: [
-                    _earningsRow("BASIC", earnings["basic"].toString(),
-                        actual: earnings["basic"].toString()),
-                    _earningsRow("HRA", earnings["hra"].toString(),
-                        actual: earnings["hra"].toString()),
-                    _earningsRow(
-                        "CONVEYANCE", earnings["conveyance"].toString(),
-                        actual: earnings["conveyance"].toString()),
-                    _earningsRow("MEDICAL ALLOWANCE",
-                        earnings["medical_allowance"].toString(),
-                        actual: earnings["medical_allowance"].toString()),
-                    _earningsRow("SPECIAL ALLOWANCE",
-                        earnings["special_allowance"].toString(),
-                        actual: earnings["special_allowance"].toString()),
-                    pw.Divider(thickness: 0.5, color: PdfColors.black),
-                    _earningsRow(
-                        "Total Earnings: INR", totalEarnings.toString(),
-                        actual: totalEarnings.toString(), isBold: true),
-                  ],
+                child: pw.Container(
+                  color: PdfColors.grey300,
+                  padding: const pw.EdgeInsets.all(5),
+                  child: pw.Text("Earnings", style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
                 ),
               ),
-              // Deductions
               pw.Expanded(
-                flex: 1,
-                child: pw.Column(
-                  children: [
-                    _deductionRow("PF", deductions["pf"].toString()),
-                    _deductionRow("ESI", deductions["esi"].toString()),
-                    _deductionRow(
-                        "PROF TAX", deductions["professional_tax"].toString()),
-                    pw.Divider(thickness: 0.5, color: PdfColors.black),
-                    _deductionRow("Total Deductions: INR",
-                        totalDeductions.toStringAsFixed(2), isBold: true),
-                  ],
+                child: pw.Container(
+                  color: PdfColors.grey300,
+                  padding: const pw.EdgeInsets.all(5),
+                  child: pw.Text("Deductions", style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
                 ),
               ),
             ],
           ),
 
-          // Net Pay Box
+          // Earnings Data Rows
+          pw.Column(
+            children: [
+              _earningsRow("BASIC", earnings["basic"].toString(), actual: earnings["basic"].toString()),
+              _earningsRow("HRA", earnings["hra"].toString(), actual: earnings["hra"].toString()),
+              _earningsRow("CONVEYANCE", earnings["conveyance"].toString(), actual: earnings["conveyance"].toString()),
+              _earningsRow("MEDICAL ALLOWANCE", earnings["medical_allowance"].toString(), actual: earnings["medical_allowance"].toString()),
+              _earningsRow("SPECIAL ALLOWANCE", earnings["special_allowance"].toString(), actual: earnings["special_allowance"].toString()),
+              pw.Divider(thickness: 0.5, color: PdfColors.black),
+              _earningsRow("Total Earnings", totalEarnings.toString(), actual: totalEarnings.toString(), isBold: true),
+            ],
+          ),
+
+          // Deductions Data Rows
+          pw.Column(
+            children: [
+              _deductionRow("PF", deductions["pf"].toString()),
+              _deductionRow("ESI", deductions["esi"].toString()),
+              _deductionRow("PROF TAX", deductions["professional_tax"].toString()),
+              pw.Divider(thickness: 0.5, color: PdfColors.black),
+              _deductionRow("Total Deductions", totalDeductions.toStringAsFixed(2), isBold: true),
+            ],
+          ),
+
+          // Net Pay Section
+          pw.SizedBox(height: 10),
           pw.Container(
-            margin: pw.EdgeInsets.only(top: 8),
-            decoration: pw.BoxDecoration(border: pw.Border.all(width: 2)),
-            padding: pw.EdgeInsets.all(5),
+            padding: pw.EdgeInsets.all(8),
+            decoration: pw.BoxDecoration(border: pw.Border.all(width: 2, color: PdfColors.black)),
             child: pw.Row(
               mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
               children: [
-                pw.Text(
-                  "Net Pay for the month ( Total Earnings - Total Deductions ):",
-                  style: pw.TextStyle(
-                      fontSize: 12, fontWeight: pw.FontWeight.bold),
-                ),
-                pw.Text(
-                  "",
-                  style: pw.TextStyle(
-                      fontSize: 14, fontWeight: pw.FontWeight.bold),
-                ),
+                pw.Text("Net Pay for the month (Total Earnings - Total Deductions):", style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold)),
+                pw.Text(netPay, style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
               ],
             ),
           ),
-          pw.SizedBox(height: 5),
-
         ],
       ),
     );
@@ -456,56 +406,58 @@ class PayslipDetailsView extends GetView<PayslipDetailsController> {
                       }
                     },
                   )),
+
                   const SizedBox(width: 10),
 
                   // Month Selector
+                  // Month horizontal scroll selector
                   Expanded(
                     child: SizedBox(
                       height: 40,
-                      child: Obx(() => ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: controller.months.length,
-                        itemBuilder: (context, index) {
-                          final month = controller.months[index];
-                          final isSelected =
-                              controller.selectedMonth.value == month;
+                      child: Obx(() {
+                        return ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: controller.months.length,
+                          itemBuilder: (context, index) {
+                            final month = controller.months[index];
+                            final isSelected = controller.selectedMonth.value == month;
 
-                          return GestureDetector(
-                            onTap: () => controller.updateMonth(month),
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 8),
-                              margin: const EdgeInsets.symmetric(horizontal: 4),
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? Colors.pink.shade700
-                                    : Colors.white,
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(
-                                  color: isSelected
-                                      ? Colors.pink.shade700
-                                      : Colors.blueGrey,
-                                  width: isSelected ? 2 : 1,
+                            return GestureDetector(
+                              onTap: () {
+                                controller.updateMonth(month); // This updates the selectedMonth
+                              },
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                margin: const EdgeInsets.symmetric(horizontal: 4),
+                                decoration: BoxDecoration(
+                                  color: isSelected ? Colors.pink.shade700 : Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: isSelected ? Colors.pink.shade700 : Colors.blueGrey,
+                                    width: isSelected ? 2 : 1,
+                                  ),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    month,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: isSelected ? Colors.white : Colors.black,
+                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                    ),
+                                  ),
                                 ),
                               ),
-                              child: Text(
-                                month,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color:
-                                  isSelected ? Colors.white : Colors.black,
-                                  fontWeight: isSelected
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      )),
+                            );
+                          },
+                        );
+                      }),
                     ),
                   ),
+
+
+
                 ],
               ),
             ),
@@ -515,27 +467,81 @@ class PayslipDetailsView extends GetView<PayslipDetailsController> {
           const SizedBox(height: 15),
 
                   Obx(() {
-                    final hasPayslip = controller.salaryComponents['summary']?['net_pay'] != null;
+                    final hasPayslipData = controller.salaryComponents.isNotEmpty &&
+                        controller.salaryComponents['summary'] != null &&
+                        controller.salaryComponents['summary']!.isNotEmpty;
 
-                    if (!hasPayslip) {
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const SizedBox(height: 40),
-                          Image.asset(
-                            'assets/images/no-payslip.jpg', // Replace with your actual image path
-                            height: 150,
-                          ),
-                          const SizedBox(height: 20),
-                          Text(
-                            controller.errorMessage.value.isNotEmpty
-                                ? controller.errorMessage.value
-                                : "Payslip not available for the selected month.",
-                            style: const TextStyle(fontSize: 16, color: Colors.grey),
-                          ),
-                        ],
+                    final monthMap = {
+                      "Jan": 1,
+                      "Feb": 2,
+                      "Mar": 3,
+                      "Apr": 4,
+                      "May": 5,
+                      "Jun": 6,
+                      "Jul": 7,
+                      "Aug": 8,
+                      "Sep": 9,
+                      "Oct": 10,
+                      "Nov": 11,
+                      "Dec": 12,
+                    };
+
+                    final selectedMonthStr = controller.selectedMonth.value; // e.g., 'Apr'
+                    final selectedYear = controller.selectedYear.value;
+
+                    final monthNum = monthMap[selectedMonthStr] ?? 1;
+                    final formattedMonth = DateFormat.MMMM().format(DateTime(0, monthNum)); // → "April"
+
+                    if (!hasPayslipData) {
+                      return AnimatedContainer(
+                        duration: const Duration(milliseconds: 500),
+                        curve: Curves.easeInOut,
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        margin: const EdgeInsets.only(top: 50),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              height: 300,
+                              width: 300,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                border: Border.all(color: const Color(0xFFB6F0E3), width: 2),
+                              ),
+                              child: Center(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Text(
+                                      'Payslips',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Image.asset(
+                                      'assets/images/no-payslip.jpg',
+                                      height: 120,
+                                      width: 120,
+                                      fit: BoxFit.contain,
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Text(
+                                      'Payslip not available for $formattedMonth .',
+                                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+
+                          ],
+                        ),
                       );
                     }
+
 
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -633,60 +639,104 @@ class PayslipDetailsView extends GetView<PayslipDetailsController> {
                         const SizedBox(height: 20),
 
                         // ✅ Employee Details Section
-                        Container(
-                          width: double.infinity,
-                          margin: const EdgeInsets.all(15),
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.shade50,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(width: 1, color: Colors.grey.shade300),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Employee Details",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.blueGrey.shade500,
-                                  fontWeight: FontWeight.w600,
+                        Stack(
+                          children: [
+                            // Container with Employee Details
+                            Container(
+                              width: double.infinity,
+                              margin: const EdgeInsets.all(15),
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.blue.shade50,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(width: 1, color: Colors.grey.shade300),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1), // Light shadow color
+                                    spreadRadius: 2, // How much the shadow spreads
+                                    blurRadius: 6,   // How blurred the shadow is
+                                    offset: Offset(0, 4), // Shadow position (horizontal, vertical)
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Employee Details",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.blueGrey.shade500,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: controller.employeeDetails.entries.map((entry) {
+                                      return Padding(
+                                        padding: const EdgeInsets.only(bottom: 20),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              entry.key,
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.blueGrey.shade700,
+                                              ),
+                                            ),
+                                            Text(
+                                              entry.value,
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            // Positioned ElevatedButton on top of the container
+                            Positioned(
+                              bottom: 70, // Adjust this to control the vertical distance from the top
+                              left: 0,
+                              right: 0,
+                              child: Center(
+                                child: ElevatedButton.icon(
+                                  onPressed: () {
+                                    generatePayslipPDF(); // Your function to generate the payslip PDF
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blue.shade700, // Button color
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30), // Rounded Button
+                                    ),
+                                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                                  ),
+                                  icon: const Icon(Icons.download, color: Colors.white, size: 18),
+                                  label: const Text(
+                                    "Download Payslip",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                 ),
                               ),
-                              const SizedBox(height: 8),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: controller.employeeDetails.entries.map((entry) {
-                                  return Padding(
-                                    padding: const EdgeInsets.only(bottom: 20),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          entry.key,
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.blueGrey.shade700,
-                                          ),
-                                        ),
-                                        Text(
-                                          entry.value,
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }).toList(),
-                              )
-                            ],
-                          ),
-                        ),
+                            ),
+                          ],
+                        )
+
                       ],
+
                     );
                   }),
 
@@ -697,34 +747,7 @@ class PayslipDetailsView extends GetView<PayslipDetailsController> {
             ),
           ),
           // Floating Button Positioned at the Top
-          Positioned(
-            bottom: 50, // Distance from bottom
-            left: 0,
-            right: 0,
-            child: Center(
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  generatePayslipPDF();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue.shade700, // Button Color
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30), // Rounded Button
-                  ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                ),
-                icon: const Icon(Icons.download, color: Colors.white, size: 18),
-                label: const Text(
-                  "Download Payslip",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ),
+
         ],
       ),
     );

@@ -62,18 +62,19 @@ class Employee {
   });
 
   factory Employee.fromJson(Map<String, dynamic> json) => Employee(
-    empId: json["emp_id"],
-    firstName: json["first_name"],
-    lastName: json["last_name"],
-    email: json["email"],
-    gender: json["gender"],
+    empId: json["emp_id"]?? '',
+    firstName: json["first_name"]?? '',
+    lastName: json["last_name"]?? '',
+    email: json["email"]?? '',
+    gender: json["gender"]?? '',
     companyId: List<String>.from(json["company_id"].map((x) => x)),
-    jobRole: json["job_role"],
-    image: json["image"],
-    jobLocation: json["job_location"],
-    employeeStatus: json["employee_status"],
-    serviceAge: json["service_age"],
-    hireDate: json["hire_date"],
+    jobRole: json["job_role"]?? '',
+    image :json["image"] ?? "",
+
+    jobLocation: json["job_location"]?? '',
+    employeeStatus: json["employee_status"]?? '',
+    serviceAge: json["service_age"]?? '',
+    hireDate: json["hire_date"]?? '',
 
   );
 }
