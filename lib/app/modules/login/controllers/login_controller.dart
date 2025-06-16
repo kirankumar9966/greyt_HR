@@ -45,13 +45,14 @@ class LoginController extends GetxController {
 
 
 
-    isLoading(true);
+    // Simulate loading for 5 seconds
+    isLoading.value = true;
+    await Future.delayed(const Duration(seconds: 5));
     final response = await AuthService.login(loginInput, password);
     isLoading(false);
 
-    print("kiranlkumar,$response");
     if (response["status"] == "success") {
-      print("kiranlkumarr");
+
       // ✅ Add a slight delay to ensure token is written before proceeding
 
       final token = AuthService.getToken();

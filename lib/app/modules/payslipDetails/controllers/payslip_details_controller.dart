@@ -1,36 +1,23 @@
-import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../../services/dashboard_service.dart';
 
 class PayslipDetailsController extends GetxController {
+  var isLoading = true.obs;
   var isEarningsExpanded = false.obs;
   var isDeductionsExpanded = false.obs;
-  var isLoading = true.obs;
 
-  var selectedYear = "2025 - 2026".obs;
-  var selectedMonth = "Feb".obs;
+  var selectedYear = "2024 - 2025".obs;
+  var selectedMonth = "Apr".obs;
+  var formattedDate = "".obs;
 
   var months = <String>[].obs;
 
   var salaryComponents = <String, dynamic>{}.obs;
   var employeeDetails = <String, String>{}.obs;
-
   var errorMessage = ''.obs;
 
   List<String> years = ["2023 - 2024", "2024 - 2025", "2025 - 2026"];
-
-  @override
-  void onInit() {
-    super.onInit();
-    months.assignAll([
-      "Apr", "May", "Jun", "Jul", "Aug", "Sep",
-      "Oct", "Nov", "Dec", "Jan", "Feb", "Mar"
-    ]);
-    _setPreviousMonth();
-    fetchSalaryDetails(); // Initial fetch based on default month/year
-  }
-
   void toggleEarnings() {
     isEarningsExpanded.value = !isEarningsExpanded.value;
   }
@@ -39,14 +26,38 @@ class PayslipDetailsController extends GetxController {
     isDeductionsExpanded.value = !isDeductionsExpanded.value;
   }
 
+  final Map<String, int> monthMap = {
+    "Apr": 4, "May": 5, "Jun": 6, "Jul": 7,
+    "Aug": 8, "Sep": 9, "Oct": 10, "Nov": 11,
+    "Dec": 12, "Jan": 1, "Feb": 2, "Mar": 3,
+  };
+
+  @override
+  void onInit() {
+    super.onInit();
+    months.assignAll([
+      "Apr", "May", "Jun", "Jul", "Aug", "Sep",
+      "Oct", "Nov", "Dec", "Jan", "Feb", "Mar"
+    ]);
+    selectedMonth.value ;
+    _setPreviousMonth();
+    fetchSalaryDetails(); // Initial fetch
+  }
+
+
   void updateMonth(String month) {
-    selectedMonth.value = month;
-    fetchSalaryDetails(); // Fetch when month changes
+
+    if (selectedMonth.value != month) {
+      selectedMonth.value = month; // 👈 This will trigger the UI highlight first
+
+        fetchSalaryDetails(); // 👈 This triggers after UI update
+      } // Refetch on month change
+
   }
 
   void updateYear(String year) {
     selectedYear.value = year;
-    fetchSalaryDetails(); // Fetch when year changes
+    fetchSalaryDetails(); // Refetch on year change
   }
 
   void _setPreviousMonth() {
@@ -57,33 +68,78 @@ class PayslipDetailsController extends GetxController {
       selectedMonth.value = "Mar";
     }
   }
+  String getMonthFullName(String shortMonth) {
+    // Convert short month (e.g., "Feb") to full month name (e.g., "February")
+    final date = DateFormat("MMM").parse(shortMonth);
+    return DateFormat("MMMM").format(date);
+  }
+  String getPayslipTitle() {
+    final month = selectedMonth.value; // e.g., "Feb"
+    final year = extractFinancialYear(selectedYear.value, month); // e.g., "2025"
+    final fullMonthName = getMonthFullName(month); // e.g., "February"
+    return "Payslip for the month of $fullMonthName $year";
+  }
+  String getFormattedMonthYear() {
+    final month = selectedMonth.value; // e.g., "Feb"
+    final year = extractFinancialYear(selectedYear.value, month); // e.g., "2025"
+    return "$month$year"; // => Feb2025
+  }
 
+  String generatePayslipFileName() {
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    return "Payslip_${getFormattedMonthYear()}_$timestamp.pdf";
+  }
+  /// 🔸 Extracts the correct actual year based on selected FY + month
+  String extractActualYear(String selectedFY, String selectedMonth) {
+    final parts = selectedFY.split(' - ');
+    final startYear = parts[0];
+    final endYear = parts[1];
+
+    // Jan to Mar belong to next year in FY
+    if (["Jan", "Feb", "Mar"].contains(selectedMonth)) {
+      return endYear; // e.g., 2025
+    } else {
+      return startYear; // e.g., 2024
+    }
+  }
   String extractFinancialYear(String year, String month) {
-    // Example input: "2024 - 2025", month = "Feb" → return 2025
     final split = year.split(' - ');
     if (["Jan", "Feb", "Mar"].contains(month)) {
-      return split[1]; // second part of financial year
+      return split[1]; // e.g., "2025"
     } else {
-      return split[0]; // first part of financial year
+      return split[0]; // e.g., "2024"
+    }
+  }
+  String formatDate(String? date) {
+    if (date == null || date.isEmpty) {
+      return '';  // Return empty string if date is null or empty
+    }
+    try {
+      DateTime parsedDate = DateTime.parse(date);  // Assuming hire_date is in string format (yyyy-mm-dd)
+      return DateFormat('dd-MM-yyyy').format(parsedDate);
+    } catch (e) {
+      return '';  // Return empty string if there's an error in date parsing
     }
   }
 
+  /// 🔸 Fetch salary from API based on correct month + actual year
   Future<void> fetchSalaryDetails() async {
     isLoading.value = true;
 
-    final month = selectedMonth.value;
-    final year = extractFinancialYear(selectedYear.value, month);
+    final month = selectedMonth.value;  // e.g. "Mar"
+    final year = extractFinancialYear(selectedYear.value, month);  // e.g. "2025"
 
+    // Convert month string to "03"
+    final formattedMonth = DateFormat("MM").format(DateFormat("MMM").parse(month));
+    final monthOfSalary = "$year-$formattedMonth";
+    formattedDate.value = "$formattedMonth $selectedYear";
     final response = await DashboardService.payslip(
-      month: month,
-      year: year,
+      month: monthOfSalary, // 🟢 send in "yyyy-MM"
     );
-
     if (response['status'] == 'success' && response['data'] != null) {
       final data = response['data'];
       final components = data['salary_components'];
 
-      // ✅ Check if critical data is missing or null (like net_pay)
       if (components == null || components['net_pay'] == null) {
         errorMessage.value = 'Payslip not available for the selected month.';
         salaryComponents.clear();
@@ -116,12 +172,12 @@ class PayslipDetailsController extends GetxController {
           "Bank Account Number": data['account_number'] ?? '',
           "Designation": data['job_role'] ?? '',
           "Department": data['department'] ?? '',
-          "Joining Date": data['hire_date'] ?? '',
+          "Joining Date": formatDate(data['hire_date']) ?? '',
           "Pan Number": data['pan_number'] ?? '-',
           "Location": data['job_location'] ?? '',
           "PF No": data['pf_no'] ?? '-',
           "PF UAN": data['uan'] ?? '-',
-          "Effective Work Days": data['work_days']?.toString() ?? '',
+          "Effective Work Days": data['work_days']?.toString() ?? '-',
           "LOP": data['lop']?.toString() ?? '0.000',
         });
 
@@ -135,5 +191,4 @@ class PayslipDetailsController extends GetxController {
 
     isLoading.value = false;
   }
-
 }

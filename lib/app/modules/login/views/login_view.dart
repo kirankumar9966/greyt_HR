@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
+import '../../../../customloader.dart';
 import '../controllers/login_controller.dart';
 
 class LoginView extends StatelessWidget {
@@ -81,15 +83,20 @@ class LoginView extends StatelessWidget {
                           height: 50,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue, // ✅ GreytHR theme color
+                              backgroundColor: Colors.blue,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
                             ),
                             onPressed: controller.isLoading.value ? null : controller.login,
                             child: controller.isLoading.value
-                                ? const CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                CustomLottieMiniLoader(size: 150),
+                                SizedBox(width: 10),
+
+                              ],
                             )
                                 : const Text(
                               "Login",
@@ -97,6 +104,11 @@ class LoginView extends StatelessWidget {
                             ),
                           ),
                         )),
+
+
+
+
+
 
                         const SizedBox(height: 15),
 

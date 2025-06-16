@@ -70,9 +70,7 @@ class DashboardView extends GetView<DashboardController> {
                   Obx(() {
                     final employee = profileController.employee.value;
 
-                    if (profileController.isLoading.value) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
+
 
                     if (employee == null) {
                       return const Text("Failed to load profile");
