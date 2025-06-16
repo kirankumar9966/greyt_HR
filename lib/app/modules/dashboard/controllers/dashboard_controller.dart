@@ -113,6 +113,8 @@ class DashboardController extends GetxController {
   void fetchUserInitials(String firstName, String lastName) {
     final initials = "${firstName[0]}${lastName[0]}".toUpperCase();
     userInitials.value = initials;
+
+
   }
 
   @override
@@ -153,7 +155,6 @@ class DashboardController extends GetxController {
   Future<void> fetchHolidays() async {
     final token = AuthService.getToken();
     final empId = AuthService.getEmpId();
-
     if (token == null || empId == null) {
       Get.snackbar("Error", "Login token or empId missing");
       return;

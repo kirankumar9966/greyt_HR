@@ -50,7 +50,7 @@ class AttendanceInfoView extends StatelessWidget {
                         onPressed: () => controller.goToPreviousMonth(),
                       ),
                       Text(
-                        controller.currentMonthYear,
+                       controller.currentMonthYear,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
@@ -618,28 +618,33 @@ class AttendanceInfoView extends StatelessWidget {
                         text: TextSpan(
                           children: [
                             TextSpan(
-                              text: "20 ", // Make "20" black
+                              text: "Working days\n", // Keep "Working days" gray
+                              style:
+                                  TextStyle(fontSize: 14, color: Colors.grey),
+                            ),
+
+                            TextSpan(
+                              text: controller.currentMonthWorkingDays.toString(),
+
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black,
                               ),
                             ),
-                            TextSpan(
-                              text: "Working days", // Keep "Working days" gray
-                              style:
-                                  TextStyle(fontSize: 14, color: Colors.grey),
-                            ),
+
                           ],
                         ),
                       ),
                     ],
                   ),
                   SizedBox(height: 5),
-                  Text(
-                    "01 Jan - 31 Jan",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
+                  Obx(() => Text(
+                    controller.currentMonthRange,
+                    style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),
+                  )),
+
+
 
                   // Donut Chart Section
                   SizedBox(height: 5),
@@ -731,6 +736,8 @@ class AttendanceInfoView extends StatelessWidget {
 
   // Insights Section
   Widget _buildInsightsSection() {
+    final AttendanceInfoController controller =
+    Get.put(AttendanceInfoController());
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -740,8 +747,12 @@ class AttendanceInfoView extends StatelessWidget {
                 fontWeight: FontWeight.bold,
                 color: Colors.black)),
         SizedBox(height: 5),
-        Text("01 Mar - 31 Mar",
-            style: TextStyle(fontSize: 14, color: Colors.grey)),
+        Obx(() => Text(
+          controller.currentMonthRange,
+          style: TextStyle(fontSize: 14,color: Colors.grey),
+        )),
+
+
 
         SizedBox(height: 10),
 

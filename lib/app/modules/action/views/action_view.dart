@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:greyt_hr/app/modules/ViewApplyRegularisations/views/view_apply_regularisation_view.dart';
 import 'package:greyt_hr/app/modules/attendanceInfo/views/attendance_info_view.dart';
 import 'package:greyt_hr/app/modules/footer/views/footer_view.dart';
 import 'package:greyt_hr/app/modules/leaveBalance/views/leave_balance_view.dart';
@@ -38,7 +39,7 @@ class ActionView extends GetView<ActionController> {
                 Icons.check_box,
                 Colors.blue,
                 "Apply Regularization",
-                SettingsView(), // Navigation to ApplyRegularizationView
+                ApplyRegularisationView(), // Navigation to ApplyRegularizationView
               ),
               _buildActionItem(
                 Icons.info,

@@ -28,8 +28,10 @@ class ExploreView extends GetView<ExploreController> {
               title: 'Attendance',
               subtitle: 'Manage your attendance.',
               actions: {
-                'Attendance Info': '/dashboard',
-                'Apply Regularization': '/dashboard',
+                'Attendance Info': '/attendance-info',
+                'Apply Regularization': '/apply-regularization',
+
+
               },
               icon: Icons.check_circle_outline,
               color: Colors.blueAccent,
@@ -41,7 +43,7 @@ class ExploreView extends GetView<ExploreController> {
               actions: {
                 'Apply Leave': '/dashboard',
                 'Leave Balance': '/dashboard',
-                'Holiday Calendar': '/dashboard',
+                'Holiday Calendar': '/holiday-calender',
               },
               icon: Icons.beach_access,
               color: Colors.teal,
@@ -74,7 +76,7 @@ class ExploreView extends GetView<ExploreController> {
               title: 'People',
               subtitle: 'A data hub for personal info and workmates.',
               actions: {
-                'My profile': '/dashboard',
+                'My profile': '/profile',
                 'My Workmates': '/dashboard',
               },
               icon: Icons.group,
@@ -85,7 +87,7 @@ class ExploreView extends GetView<ExploreController> {
               title: 'To Do',
               subtitle: 'Review Pending Items.',
               actions: {
-                'Review': '/dashboard',
+                'Review': '/review-pending-regularization',
               },
               icon: Icons.task,
               color: Colors.orange,
