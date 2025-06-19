@@ -6,6 +6,14 @@ import 'package:greyt_hr/app/modules/leaveBalance/views/leave_balance_view.dart'
 import 'package:greyt_hr/app/modules/payslips/views/payslips_view.dart';
 import 'package:greyt_hr/app/modules/settings/views/settings_view.dart';
 
+import 'package:greyt_hr/app/modules/regularization/views/regularization_view.dart';
+
+
+import '../../applyLeave/views/apply_leave_view.dart';
+import '../../statement/views/statement_view.dart';
+import '../../ytd/views/ytd_view.dart';
+
+
 import '../controllers/action_controller.dart';
 
 // Importing the different views you created
@@ -38,7 +46,7 @@ class ActionView extends GetView<ActionController> {
                 Icons.check_box,
                 Colors.blue,
                 "Apply Regularization",
-                SettingsView(), // Navigation to ApplyRegularizationView
+              RegularizationView(), // Navigation to ApplyRegularizationView
               ),
               _buildActionItem(
                 Icons.info,
@@ -50,7 +58,7 @@ class ActionView extends GetView<ActionController> {
                 Icons.coffee,
                 Colors.green,
                 "Apply Leave",
-                SettingsView(), // Navigation to ApplyLeaveView
+                  ApplyLeaveView(), // Navigation to ApplyLeaveView
               ),
               _buildActionItem(
                 Icons.balance,
@@ -74,13 +82,13 @@ class ActionView extends GetView<ActionController> {
                 Icons.trending_up,
                 Colors.purple,
                 "YTD Reports",
-                SettingsView(), // Navigation to YTDReportsView
+                YtdView(), // Navigation to YTDReportsView
               ),
               _buildActionItem(
                 Icons.computer,
                 Colors.purple,
                 "IT Statement",
-                SettingsView(), // Navigation to ITStatementView
+                StatementView(), // Navigation to ITStatementView
               ),
               _buildActionItem(
                 Icons.link,

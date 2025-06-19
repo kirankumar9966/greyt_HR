@@ -28,6 +28,19 @@ import 'package:greyt_hr/app/modules/resign/controllers/resign_controller.dart';
 import 'package:greyt_hr/app/modules/settings/controllers/settings_controller.dart';
 import 'package:greyt_hr/app/modules/updates/controllers/updates_controller.dart';
 
+import'package:greyt_hr/app/modules/regularization/controllers/regularization_controller.dart';
+import 'package:greyt_hr/app/modules/myprofile/controllers/myprofile_controller.dart';
+
+import 'package:greyt_hr/app/modules/todo/controllers/todo_controller.dart';
+import 'package:greyt_hr/app/modules/helpdesk/controllers/helpdesk_controller.dart';
+import 'package:greyt_hr/app/modules/ytd/controllers/ytd_controller.dart';
+import 'package:greyt_hr/app/modules/statement/controllers/statement_controller.dart';
+import 'package:greyt_hr/app/modules/myworkmates/controllers/myworkmates_controller.dart';
+import 'package:greyt_hr/app/modules/documentcenter/controllers/documentcenter_controller.dart';
+import 'package:greyt_hr/app/modules/holidaycenter/controllers/holidaycenter_controller.dart';
+
+
+
 import 'app/modules/login/controllers/login_controller.dart';
 import 'app/routes/app_pages.dart';
 
@@ -55,10 +68,20 @@ void main() async {
   Get.put(ApplyLeaveController());
   Get.put(LeaveBalanceController());
   Get.put(HolidayCalenderController());
+  Get.put(HolidaycenterController());
   Get.put(DayDetailsController());
   Get.put(PayslipsController());
   Get.put(PayslipDetailsController());
   Get.put(CasualLeaveController());
+  Get.put(TodoController());
+  Get.put(YtdController());
+  Get.put(StatementController());
+  Get.put(DocumentcenterController());
+  Get.put(HelpdeskController());
+  Get.put(RegularizationController());
+  Get.put(MyprofileController());
+  // Get.put(MyworkmatesController());
+
 
   runApp(
     GetMaterialApp(

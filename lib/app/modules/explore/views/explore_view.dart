@@ -41,7 +41,8 @@ class ExploreView extends GetView<ExploreController> {
               actions: {
                 'Apply Leave': '/dashboard',
                 'Leave Balance': '/dashboard',
-                'Holiday Calendar': '/dashboard',
+                'Holiday Calendar': '/holidaycenter',
+
               },
               icon: Icons.beach_access,
               color: Colors.teal,
@@ -74,8 +75,8 @@ class ExploreView extends GetView<ExploreController> {
               title: 'People',
               subtitle: 'A data hub for personal info and workmates.',
               actions: {
-                'My profile': '/dashboard',
-                'My Workmates': '/dashboard',
+                'My profile': '/myprofile',
+                'My Workmates': '/myworkmates',
               },
               icon: Icons.group,
               color: Colors.blue,
@@ -85,7 +86,7 @@ class ExploreView extends GetView<ExploreController> {
               title: 'To Do',
               subtitle: 'Review Pending Items.',
               actions: {
-                'Review': '/dashboard',
+                'Review': '/todo',
               },
               icon: Icons.task,
               color: Colors.orange,
@@ -97,6 +98,10 @@ class ExploreView extends GetView<ExploreController> {
               icon: Icons.help_outline,
               color: Colors.green,
               index: 6,
+              actions: {
+                'Helpdesk': '/helpdesk',
+              },
+
             )),
             Obx(() => buildFeatureCard(
               title: 'Documents',
@@ -104,6 +109,11 @@ class ExploreView extends GetView<ExploreController> {
               icon: Icons.description,
               color: Colors.teal,
               index: 7,
+              actions: {
+                'Document': '/documentcenter',
+
+              },
+
             )),
           ],
         ),

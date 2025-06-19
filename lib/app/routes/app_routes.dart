@@ -29,6 +29,16 @@ abstract class Routes {
   static const PAYSLIP_DETAILS = _Paths.PAYSLIP_DETAILS;
   static const CASUAL_LEAVE = _Paths.CASUAL_LEAVE;
   static const LOGIN = _Paths.LOGIN;
+  static const REGULARIZATION = _Paths.REGULARIZATION;
+  static const YTD = _Paths.YTD;
+  static const STATEMENT = _Paths.STATEMENT;
+  static const TODO = _Paths.TODO;
+  static const DOCUMENTCENTER = _Paths.DOCUMENTCENTER;
+  static const HELPDESK = _Paths.HELPDESK;
+  static const MYPROFILE = _Paths.MYPROFILE;
+  static const MYPAGE = _Paths.MYPAGE;
+  static const MYWORKMATES = _Paths.MYWORKMATES;
+  static const HOLIDAYCENTER = _Paths.HOLIDAYCENTER;
 }
 
 abstract class _Paths {
@@ -59,5 +69,14 @@ abstract class _Paths {
   static const PAYSLIP_DETAILS = '/payslip-details';
   static const CASUAL_LEAVE = '/casual-leave';
   static const LOGIN = '/login';
-
+  static const REGULARIZATION = '/regularization';
+  static const YTD = '/ytd';
+  static const STATEMENT = '/statement';
+  static const TODO = '/todo';
+  static const DOCUMENTCENTER = '/documentcenter';
+  static const HELPDESK = '/helpdesk';
+  static const MYPROFILE = '/myprofile';
+  static const MYPAGE = '/mypage';
+  static const MYWORKMATES = '/myworkmates';
+  static const HOLIDAYCENTER = '/holidaycenter';
 }
