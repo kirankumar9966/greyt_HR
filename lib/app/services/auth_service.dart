@@ -7,8 +7,9 @@ import '../modules/dashboard/controllers/dashboard_controller.dart';
 import '../modules/dashboard/models/HolidayCalender.dart';
 import '../modules/payslipDetails/controllers/payslip_details_controller.dart';
 import '../modules/profile/controllers/profile_controller.dart';
+import '../modules/myworkmates/controllers/myworkmates_controller.dart';
 import '../modules/profile/models/ProfileModel.dart';
-import '../modules/utils/helpers.dart';
+import '../modules/utils/ApiConstants.dart';
 import '../routes/app_pages.dart';
 
 class AuthService {
@@ -18,6 +19,13 @@ class AuthService {
   static const String profileUrl = "https://s6.payg-india.com/api/getEmployeeDetails";
   static const String holidaysUrl = "https://s6.payg-india.com/api/holidays";
   static const String swipeUrl = "https://s6.payg-india.com/api/swipe";
+  static const String parse = "https://s6.payg-india.com/api/get-all-employeeDetails";
+  static String token = "https://s6.payg-india.com/api/get-all-employeeDetails";
+
+ // static String token = 'https://s6.payg-india.com/api/get-all-employeeDetails'; // Set your token here or fetch from secure storage
+
+
+
 
   static String? getToken() => _storage.read("auth_token");
   static String? getEmpId() => _storage.read("emp_id");

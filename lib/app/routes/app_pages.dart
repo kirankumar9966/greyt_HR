@@ -26,6 +26,8 @@ import '../modules/dayDetails/bindings/day_details_binding.dart';
 import '../modules/dayDetails/views/day_details_view.dart';
 import '../modules/disablePin/bindings/disable_pin_binding.dart';
 import '../modules/disablePin/views/disable_pin_view.dart';
+import '../modules/documentcenter/bindings/documentcenter_binding.dart';
+import '../modules/documentcenter/views/documentcenter_view.dart';
 import '../modules/edtiPin/bindings/edti_pin_binding.dart';
 import '../modules/edtiPin/views/edti_pin_view.dart';
 import '../modules/engage/bindings/engage_binding.dart';
@@ -36,12 +38,23 @@ import '../modules/footer/bindings/footer_binding.dart';
 import '../modules/footer/views/footer_view.dart';
 import '../modules/header/bindings/header_binding.dart';
 import '../modules/header/views/header_view.dart';
+import '../modules/helpdesk/bindings/helpdesk_binding.dart';
+import '../modules/helpdesk/views/helpdesk_view.dart';
 import '../modules/holidayCalender/bindings/holiday_calender_binding.dart';
 import '../modules/holidayCalender/views/holiday_calender_view.dart';
+import '../modules/holidaycenter/bindings/holidaycenter_binding.dart';
+import '../modules/holidaycenter/views/holidaycenter_view.dart';
 import '../modules/leaveBalance/bindings/leave_balance_binding.dart';
 import '../modules/leaveBalance/views/leave_balance_view.dart';
 import '../modules/login/bindings/login_binding.dart';
 import '../modules/login/views/login_view.dart';
+import '../modules/mypage/bindings/mypage_binding.dart';
+import '../modules/mypage/views/mypage_view.dart';
+import '../modules/myprofile/bindings/myprofile_binding.dart';
+import '../modules/myprofile/views/myprofile_view.dart';
+import '../modules/myworkmates/bindings/myworkmates_binding.dart';
+import '../modules/myworkmates/views/myworkmates_view.dart';
+import '../modules/myworkmates/views/myworkmates_view.dart';
 import '../modules/newPinSetup/bindings/new_pin_setup_binding.dart';
 import '../modules/newPinSetup/views/new_pin_setup_view.dart';
 import '../modules/payslipDetails/bindings/payslip_details_binding.dart';
@@ -52,12 +65,23 @@ import '../modules/privacyAndSecurity/bindings/privacy_and_security_binding.dart
 import '../modules/privacyAndSecurity/views/privacy_and_security_view.dart';
 import '../modules/profile/bindings/profile_binding.dart';
 import '../modules/profile/views/profile_view.dart';
+import '../modules/regularization/bindings/regularization_binding.dart';
+import '../modules/regularization/views/regularization_view.dart';
 import '../modules/resign/bindings/resign_binding.dart';
 import '../modules/resign/views/resign_view.dart';
 import '../modules/settings/bindings/settings_binding.dart';
 import '../modules/settings/views/settings_view.dart';
+import '../modules/statement/bindings/statement_binding.dart';
+import '../modules/statement/views/statement_view.dart';
+import '../modules/todo/bindings/todo_binding.dart';
+import '../modules/todo/views/todo_detail_view.dart';
+import '../modules/todo/views/todo_view.dart';
 import '../modules/updates/bindings/updates_binding.dart';
 import '../modules/updates/views/updates_view.dart';
+import '../modules/ytd/bindings/ytd_binding.dart';
+import '../modules/ytd/views/ytd_view.dart';
+import '../modules/holidaycenter/bindings/holidaycenter_binding.dart';
+import '../modules/holidaycenter/views/holidaycenter_view.dart';
 
 part 'app_routes.dart';
 
@@ -79,7 +103,7 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.PROFILE,
-      page: () =>  ProfileView(),
+      page: () => ProfileView(),
       binding: ProfileBinding(),
     ),
     GetPage(
@@ -174,7 +198,7 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.APPLY_LEAVE,
-      page: () => const ApplyLeaveView(),
+      page: () =>  ApplyLeaveView(),
       binding: ApplyLeaveBinding(),
     ),
     GetPage(
@@ -207,16 +231,73 @@ class AppPages {
       page: () => const CasualLeaveView(),
       binding: CasualLeaveBinding(),
     ),
-
     GetPage(
       name: _Paths.LOGIN,
-      page: () =>  LoginView(),
+      page: () => LoginView(),
       binding: LoginBinding(),
     ),
     GetPage(
       name: _Paths.REVIEW_PENDING_REGULARISATION,
       page: () =>  ReviewPendingRegularisationsView(),
       binding: ReviewPendingRegularisationsBinding(),
+    ),
+    GetPage(
+      name: _Paths.REGULARIZATION,
+      page: () => const RegularizationView(),
+      binding: RegularizationBinding(),
+    ),
+    GetPage(
+      name: _Paths.YTD,
+      page: () => const YtdView(),
+      binding: YtdBinding(),
+    ),
+    GetPage(
+      name: _Paths.STATEMENT,
+      page: () => const StatementView(),
+      binding: StatementBinding(),
+    ),
+    GetPage(
+      name: _Paths.TODO,
+      page: () => const TodoView(),
+      binding: TodoBinding(),
+    ),
+    GetPage(
+      name: _Paths.TODO,
+      page: () => const TodoDetailView(
+        tab: '',
+        image: '',
+      ),
+      binding: TodoBinding(),
+    ),
+    GetPage(
+      name: _Paths.DOCUMENTCENTER,
+      page: () => const DocumentcenterView(),
+      binding: DocumentcenterBinding(),
+    ),
+    GetPage(
+      name: _Paths.HELPDESK,
+      page: () => HelpdeskView(),
+      binding: HelpdeskBinding(),
+    ),
+    GetPage(
+      name: _Paths.MYPROFILE,
+      page: () => const MyprofileView(),
+      binding: MyprofileBinding(),
+    ),
+    GetPage(
+      name: _Paths.MYPAGE,
+      page: () => const MypageView(),
+      binding: MypageBinding(),
+    ),
+    GetPage(
+      name: _Paths.MYWORKMATES,
+      page: () => const MyworkmatesView(),
+      binding: MyworkmatesBinding(),
+    ),
+    GetPage(
+      name: _Paths.HOLIDAYCENTER,
+      page: () => const HolidaycenterView(),
+      binding: HolidaycenterBinding(),
     ),
   ];
 }
