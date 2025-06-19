@@ -1,4 +1,10 @@
 import 'package:get/get.dart';
+import 'package:greyt_hr/app/modules/Regularization/bindings/attendance_regularisation_binding.dart';
+import 'package:greyt_hr/app/modules/Regularization/views/attendance_regularisation_view.dart';
+import 'package:greyt_hr/app/modules/ViewPendingRegularisations/bindings/view_pending_regularisations_binding.dart';
+import 'package:greyt_hr/app/modules/ViewPendingRegularisations/views/view_pending_regularisations_view.dart';
+import 'package:greyt_hr/app/modules/reviewPendingRegularisation/bindings/review_pending_regularisation_binding.dart';
+import 'package:greyt_hr/app/modules/reviewPendingRegularisation/views/review_pending_regularisation_view.dart';
 
 import '../modules/aboutThisApp/bindings/about_this_app_binding.dart';
 import '../modules/aboutThisApp/views/about_this_app_view.dart';
@@ -167,13 +173,28 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.APPLY_REGULARIZATION,
-      page: () => const ApplyRegularizationView(),
-      binding: ApplyRegularizationBinding(),
+      page: () =>  AttendanceRegularisationView(),
+      binding: AttendanceRegularisationBinding(),
     ),
     GetPage(
       name: _Paths.ATTENDANCE_INFO,
       page: () => AttendanceInfoView(),
       binding: AttendanceInfoBinding(),
+    ),
+    GetPage(
+      name: _Paths.VIEW_PENDING_REGULARISATIONS,
+      page: () => const ViewPendingRegularisationsView(),
+      binding: ViewPendingRegularisationsBinding(),
+    ),
+    GetPage(
+      name: _Paths.VIEW_PENDING_REGULARISATIONS,
+      page: () => const ViewPendingRegularisationsView(),
+      binding: ViewPendingRegularisationsBinding(),
+    ),
+    GetPage(
+      name: _Paths.VIEW_PROFILE,
+      page: () => const ProfileView(),
+      binding: ProfileBinding(),
     ),
     GetPage(
       name: _Paths.APPLY_LEAVE,
@@ -214,6 +235,11 @@ class AppPages {
       name: _Paths.LOGIN,
       page: () => LoginView(),
       binding: LoginBinding(),
+    ),
+    GetPage(
+      name: _Paths.REVIEW_PENDING_REGULARISATION,
+      page: () =>  ReviewPendingRegularisationsView(),
+      binding: ReviewPendingRegularisationsBinding(),
     ),
     GetPage(
       name: _Paths.REGULARIZATION,

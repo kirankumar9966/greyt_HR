@@ -29,6 +29,8 @@ abstract class Routes {
   static const PAYSLIP_DETAILS = _Paths.PAYSLIP_DETAILS;
   static const CASUAL_LEAVE = _Paths.CASUAL_LEAVE;
   static const LOGIN = _Paths.LOGIN;
+  static const VIEW_PROFILE = _Paths.VIEW_PROFILE;
+  static const REVIEW_PENDING_REGULARISATION = _Paths.REVIEW_PENDING_REGULARISATION;
   static const REGULARIZATION = _Paths.REGULARIZATION;
   static const YTD = _Paths.YTD;
   static const STATEMENT = _Paths.STATEMENT;
@@ -59,6 +61,9 @@ abstract class _Paths {
   static const ACTION = '/action';
   static const EXPLORE = '/explore';
   static const ENGAGE = '/engage';
+  static const VIEW_PENDING_REGULARISATIONS = '/view-pending-regularization';
+  static const REVIEW_PENDING_REGULARISATION = '/review-pending-regularization';
+
   static const APPLY_REGULARIZATION = '/apply-regularization';
   static const ATTENDANCE_INFO = '/attendance-info';
   static const APPLY_LEAVE = '/apply-leave';
@@ -69,6 +74,7 @@ abstract class _Paths {
   static const PAYSLIP_DETAILS = '/payslip-details';
   static const CASUAL_LEAVE = '/casual-leave';
   static const LOGIN = '/login';
+  static const VIEW_PROFILE='/profile';
   static const REGULARIZATION = '/regularization';
   static const YTD = '/ytd';
   static const STATEMENT = '/statement';

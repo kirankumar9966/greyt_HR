@@ -8,6 +8,7 @@ class ApiConstants {
   static const String myworkmates = "$baseUrl/myworkmates";
   static const String getAllEmployeeDetails = "$baseUrl/get-all-employeeDetails";
 }
+  static const String showRegularisationHistory = "$baseUrl/regularisation-history";
 
 
 
